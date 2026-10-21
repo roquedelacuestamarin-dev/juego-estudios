@@ -1,0 +1,17 @@
+[project]
+name = "isla-saber"
+version = "0.1.0"
+description = "Preparación de aventuras educativas con fuentes trazables"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+  "fastapi==0.141.1", "uvicorn==0.52.1", "python-multipart==0.0.32",
+  "pydantic==2.13.4", "httpx==0.28.1", "pymupdf==1.26.6",
+  "pillow==12.3.0", "python-docx==1.2.0", "python-pptx==1.0.2",
+]
+
+[dependency-groups]
+dev = ["pytest==9.0.2", "playwright==1.62.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

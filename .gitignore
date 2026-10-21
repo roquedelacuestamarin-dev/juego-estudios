@@ -1,0 +1,9 @@
+.venv/
+.runtime/
+.data/
+__pycache__/
+.pytest_cache/
+test-results/
+.env
+*.pyc
+.vercel/

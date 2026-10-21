@@ -1,0 +1,11 @@
+# Solo el código necesario entra en la imagen; no incluye sesiones, claves ni capturas.
+**
+!Dockerfile
+!pyproject.toml
+!uv.lock
+!scripts/
+!scripts/**
+!app/
+!app/**
+**/__pycache__
+**/*.pyc

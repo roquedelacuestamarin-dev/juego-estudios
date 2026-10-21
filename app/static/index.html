@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#234d3c" />
+    <meta
+      name="description"
+      content="Transforma tu material de estudio en el comienzo de una aventura. Preparación educativa con fuentes y preferencias propias."
+    />
+    <title>Isla Saber · Tu próxima aventura</title>
+    <link rel="icon" href="/static/mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/static/style.css" />
+    <script src="/static/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip" href="#conversation">Saltar a la conversación</a>
+    <aside class="sidebar" aria-label="Navegación principal">
+      <a class="brand" href="/" aria-label="Isla Saber, inicio"
+        ><img src="/static/mark.svg" alt="" width="38" height="38" /><span
+          >isla<span class="brand-light">saber</span
+          ><small>APRENDE. EXPLORA. DESCUBRE.</small></span
+        ></a
+      >
+      <div class="nav-label">TU ESPACIO</div>
+      <nav>
+        <a class="nav-item active" href="#conversation"
+          ><span aria-hidden="true">✦</span> Crear aventura
+          <span class="nav-arrow" aria-hidden="true">↗</span></a
+        >
+        <button class="nav-item" id="nav-material">
+          <span aria-hidden="true">▤</span> Mi material
+          <span class="nav-count" id="nav-count">0</span>
+        </button>
+        <button class="nav-item" id="nav-preferences">
+          <span aria-hidden="true">☷</span> Preferencias
+        </button>
+      </nav>
+      <div class="sidebar-note">
+        <div class="tiny-island" aria-hidden="true">✦</div>
+        <strong>Un poco de curiosidad.<br />Todo un mundo por explorar.</strong>
+        <p>Tu material es el punto de partida.</p>
+      </div>
+      <div class="sidebar-bottom">
+        <button class="nav-item" id="help-button">
+          <span aria-hidden="true">?</span> Cómo funciona</button
+        ><button class="nav-item" id="privacy-button">
+          <span aria-hidden="true">◇</span> Privacidad y datos
+        </button>
+        <div class="profile">
+          <div class="avatar mini" aria-hidden="true">E</div>
+          <div>
+            <strong id="profile-name">Explorador</strong
+            ><small>Sesión privada</small>
+          </div>
+          <span class="status-dot" aria-hidden="true"></span>
+        </div>
+      </div>
+    </aside>
+    <div class="shell">
+      <header class="topbar">
+        <div class="breadcrumb">
+          Tu espacio <span>/</span> <strong>Crear aventura</strong>
+        </div>
+        <a class="mobile-brand" href="/">✦ isla saber</a>
+        <div class="top-actions">
+          <span class="phase-badge">PRIMERA EXPEDICIÓN</span
+          ><button
+            class="icon-button"
+            id="mobile-settings"
+            aria-label="Abrir preferencias"
+          >
+            ☷
+          </button>
+        </div>
+      </header>
+      <main>
+        <section class="intro" aria-labelledby="page-title">
+          <div>
+            <div class="eyebrow">
+              <span></span> EL CONOCIMIENTO ES UNA AVENTURA
+            </div>
+            <h1 id="page-title">
+              Cada gran aventura<br />empieza con <em>una idea.</em>
+            </h1>
+            <p>Trae lo que quieres aprender. Juntos le daremos forma.</p>
+          </div>
+          <div class="intro-decoration" aria-hidden="true">✧<span>✦</span></div>
+        </section>
+        <div class="workspace">
+          <section
+            class="conversation panel"
+            id="conversation"
+            aria-labelledby="conversation-title"
+          >
+            <header class="panel-header">
+              <div class="compass-avatar" aria-hidden="true">✦</div>
+              <div>
+                <h2 id="conversation-title">Tu compañero de exploración</h2>
+                <p id="mode-label">
+                  <span class="status-dot"></span> Conectando con tu sesión…
+                </p>
+              </div>
+              <span class="chat-decoration" aria-hidden="true">···</span>
+            </header>
+            <div
+              class="messages"
+              id="messages"
+              tabindex="0"
+              role="log"
+              aria-label="Conversación con el asistente"
+              aria-live="polite"
+            >
+              <article class="message assistant welcome">
+                <div class="message-avatar" aria-hidden="true">✦</div>
+                <div class="message-body">
+                  <span class="message-author">GUÍA DE LA ISLA</span>
+                  <div class="bubble">
+                    <h3>
+                      ¡Hola, explorador! <span aria-hidden="true">☀</span>
+                    </h3>
+                    <p>
+                      ¿Qué te gustaría aprender hoy? Adjunta tus apuntes y
+                      cuéntame qué quieres practicar.
+                    </p>
+                    <p>Podemos empezar con algo así:</p>
+                    <blockquote>
+                      “Quiero estudiar suma y resta. Haz las sumas más fáciles y
+                      las restas un poco más difíciles”.
+                    </blockquote>
+                    <p class="welcome-note">
+                      Yo preparo el contenido. El videojuego se incorporará en
+                      una próxima etapa.
+                    </p>
+                  </div>
+                </div>
+              </article>
+            </div>
+            <div class="suggestions" aria-label="Ideas para comenzar">
+              <button
+                data-prompt="Quiero estudiar suma y resta. Haz las sumas más fáciles y las restas un poco más difíciles."
+              >
+                ＋ Practicar matemáticas</button
+              ><button data-prompt="Quiero repasar ciencias con mis apuntes.">
+                ＋ Repasar ciencias
+              </button>
+            </div>
+            <form id="chat-form" class="composer">
+              <label class="sr-only" for="message-input"
+                >Escribe al asistente</label
+              ><textarea
+                id="message-input"
+                maxlength="2000"
+                rows="2"
+                placeholder="Cuéntame qué quieres aprender…"
+              ></textarea>
+              <div class="composer-bottom">
+                <button class="attach-button" type="button" id="chat-attach">
+                  <svg aria-hidden="true">
+                    <use href="/static/icons.svg#clip" />
+                  </svg>
+                  Adjuntar material</button
+                ><span class="input-hint">Enter para enviar</span
+                ><button
+                  class="send-button"
+                  type="submit"
+                  id="send-button"
+                  aria-label="Enviar mensaje"
+                >
+                  <svg aria-hidden="true">
+                    <use href="/static/icons.svg#arrow" />
+                  </svg>
+                </button>
+              </div>
+            </form>
+            <p class="chat-footnote">
+              <svg aria-hidden="true">
+                <use href="/static/icons.svg#shield" />
+              </svg>
+              Usa un apodo. No necesitas compartir datos personales.
+            </p>
+          </section>
+          <aside
+            class="preparation"
+            aria-label="Material y preparación de la aventura"
+          >
+            <section class="island-card">
+              <div class="island-label">
+                <span aria-hidden="true">✦</span> TU PRÓXIMA AVENTURA
+              </div>
+              <img
+                src="/static/island.svg"
+                alt="Ilustración original en píxeles de una isla verde con un sendero, árboles y una pequeña biblioteca"
+                width="400"
+                height="240"
+              />
+              <div class="island-caption">
+                <h2>Un mundo por descubrir</h2>
+                <p>Primero, preparemos tu equipaje.</p>
+                <span class="engine-badge"
+                  ><span aria-hidden="true">◷</span> Motor del juego
+                  pendiente</span
+                >
+              </div>
+            </section>
+            <section
+              class="materials panel"
+              id="materials"
+              aria-labelledby="material-title"
+            >
+              <header class="section-heading">
+                <h2 id="material-title">Tu material de estudio</h2>
+                <span id="file-count">0 / 20</span>
+              </header>
+              <label
+                for="file-input"
+                class="drop-zone"
+                id="drop-zone"
+                tabindex="0"
+                role="button"
+                aria-label="Seleccionar material de estudio"
+                ><svg aria-hidden="true">
+                  <use href="/static/icons.svg#upload" /></svg
+                ><strong>Trae tus apuntes</strong
+                ><span>Arrastra archivos o <u>explora tu dispositivo</u></span
+                ><small>PDF, JPG, PNG, WebP, DOCX y PPTX</small></label
+              ><input
+                id="file-input"
+                type="file"
+                multiple
+                accept=".pdf,.jpg,.jpeg,.png,.webp,.docx,.pptx"
+                class="sr-only"
+                tabindex="-1"
+                aria-label="Archivos de estudio"
+              />
+              <p class="file-limits" id="file-limits">
+                Hasta 20 archivos · 10 MB por archivo
+              </p>
+              <ul
+                id="file-list"
+                class="file-list"
+                aria-label="Archivos adjuntos"
+              ></ul>
+              <p id="upload-status" class="upload-status" role="status"></p>
+              <button
+                class="text-button folder-button"
+                id="folder-button"
+                hidden
+              >
+                Seleccionar una carpeta</button
+              ><input
+                type="file"
+                id="folder-input"
+                multiple
+                webkitdirectory
+                hidden
+              />
+              <details class="format-details">
+                <summary>Qué podemos leer</summary>
+                <p>
+                  PDF con texto y escaneados, fotos e imágenes mediante OCR.
+                  Word y PowerPoint: texto y tablas; sus imágenes incrustadas no
+                  se leen. No se admiten .doc ni .ppt antiguos. Fórmulas y
+                  escritura a mano pueden requerir una copia más legible.
+                </p>
+              </details>
+            </section>
+            <section class="generation panel">
+              <div class="section-heading">
+                <h2>El siguiente paso</h2>
+                <span class="step-number">02</span>
+              </div>
+              <p id="generation-description">
+                Adjunta material para preparar el contenido de tu aventura.
+              </p>
+              <button id="generate-button" class="primary-button" disabled>
+                <span aria-hidden="true">✦</span> Generar juego
+                <svg aria-hidden="true">
+                  <use href="/static/icons.svg#arrow" />
+                </svg>
+              </button>
+              <p class="generation-note">
+                Por ahora, este paso prepara el contenido educativo. Todavía no
+                podrás jugar.
+              </p>
+              <div
+                id="generation-status"
+                role="status"
+                class="generation-status"
+              ></div>
+              <a
+                id="download-package"
+                class="download-link"
+                href="/api/package"
+                download
+                hidden
+                >Descargar configuración educativa ↓</a
+              >
+            </section>
+          </aside>
+        </div>
+        <footer class="page-footer">
+          <span>Hecho para aprender a tu manera.</span
+          ><span
+            ><button class="text-button" id="footer-help">Cómo funciona</button>
+            ·
+            <button class="text-button" id="footer-privacy">
+              Privacidad y eliminar sesión
+            </button></span
+          ><span
+            >Sin búsquedas externas · Currículum oficial no verificado</span
+          >
+        </footer>
+      </main>
+    </div>
+    <div id="toast" role="status" class="toast" hidden></div>
+    <dialog id="modal" aria-labelledby="modal-title">
+      <div class="modal-heading">
+        <h2 id="modal-title"></h2>
+        <button
+          id="close-modal"
+          class="icon-button"
+          aria-label="Cerrar ventana"
+        >
+          ×
+        </button>
+      </div>
+      <div id="modal-content"></div>
+    </dialog>
+    <template id="preferences-template"
+      ><form id="preferences-form" class="preferences-form">
+        <p>
+          El asistente conserva estos datos durante tu sesión. Puedes
+          corregirlos en cualquier momento.
+        </p>
+        <label
+          >Tu apodo<input
+            name="nickname"
+            maxlength="40"
+            required
+            autocomplete="off" /></label
+        ><label
+          >Curso o nivel <span class="optional">(opcional)</span
+          ><select name="education_level">
+            <option value="">Sin especificar</option>
+            <option>7.º básico</option>
+            <option>8.º básico</option>
+            <option>1.º medio</option>
+            <option>2.º medio</option>
+            <option>3.º medio</option>
+            <option>4.º medio</option>
+            <option>Adulto / otro nivel</option>
+          </select></label
+        ><label
+          >Dificultad general<select name="difficulty">
+            <option value="facil">Fácil</option>
+            <option value="media">Media</option>
+            <option value="dificil">Difícil</option>
+          </select></label
+        >
+        <fieldset>
+          <legend>Dificultad por tema</legend>
+          <div id="topic-preferences"></div>
+          <p class="muted">
+            Puedes pedir, por ejemplo: “sumas fáciles y restas difíciles”.
+          </p>
+        </fieldset>
+        <button class="primary-button" type="submit">
+          Guardar preferencias
+        </button>
+      </form></template
+    >
+  </body>
+</html>

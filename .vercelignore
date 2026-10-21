@@ -1,0 +1,9 @@
+.git
+.venv
+.runtime
+.data
+.env
+test-results
+tests
+**/__pycache__
+**/*.pyc

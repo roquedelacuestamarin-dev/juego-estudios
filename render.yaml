@@ -1,0 +1,28 @@
+# Piloto sin servicios de pago ni llamadas de IA. Los datos son temporales.
+services:
+  - type: web
+    name: isla-saber
+    runtime: docker
+    plan: free
+    branch: main
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    autoDeploy: false
+    envVars:
+      - key: EDU_AI_MODE
+        value: local
+      - key: EDU_COOKIE_SECURE
+        value: "true"
+      - key: EDU_DATA_DIR
+        value: /app/.data
+      - key: EDU_EXTRACTION_WORKERS
+        value: "1"
+      - key: EDU_MAX_FILE_MB
+        value: "3"
+      - key: EDU_MAX_SESSION_MB
+        value: "20"
+      - key: EDU_MAX_PAGES
+        value: "10"
+      - key: EDU_MAX_TEXT_CHARS
+        value: "20000"
