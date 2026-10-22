@@ -23,6 +23,15 @@ docker build -t isla-saber:local .
 docker run --rm -p 8000:8000 --memory=512m --cpus=1 isla-saber:local
 ```
 
+Para ejecutar la prueba funcional automatizada del contenedor:
+
+```bash
+docker build -t isla-saber:preview .
+python3 scripts/container_smoke.py
+```
+
+La prueba crea y elimina su propio contenedor, sin publicar puertos ni llamar a proveedores de IA.
+
 El contenedor usa un usuario sin privilegios, dependencias congeladas y un modelo OCR comprobado mediante SHA-256. El contexto de build excluye claves, sesiones, Git y archivos de prueba. El contenedor local no marca la cookie como Secure por defecto para permitir probar por HTTP; el Blueprint de Render sí la marca.
 
 No se debe ejecutar este servidor con múltiples workers o réplicas: sus bloqueos y su cola son locales al proceso.

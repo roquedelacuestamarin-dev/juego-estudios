@@ -53,3 +53,6 @@ La web y la preparación local son comprobables en este entorno. La validación 
 - Prueba de cookies Secure y origen público `https://juego.elchucao.cl` detrás de un proxy: aprobada.
 - El recorrido en tres tamaños comprueba ahora también una selección múltiple en la que el segundo archivo está dañado: el primero se conserva y el error parcial se comunica.
 - La publicación en Render/Vercel y el cambio DNS requieren conectar las cuentas del propietario. No están validados por estos tests locales.
+
+- Imagen `isla-saber:preview` construida correctamente a partir del Dockerfile y la imagen base fijada por digest. En este entorno se utilizó el proxy existente y su CA mediante un secreto efímero de BuildKit; no se desactivó la verificación TLS ni se guardó el certificado del entorno en la imagen.
+- `python3 scripts/container_smoke.py`: aprobado en un contenedor limitado a 512 MB y una CPU. Verificó web, extracción de PDF, OCR español de un JPEG sintético, preferencias por tema, paquete con fuentes y borrado de sesión. El contenedor de prueba se eliminó al finalizar.
