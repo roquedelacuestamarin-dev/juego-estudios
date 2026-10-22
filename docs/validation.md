@@ -50,7 +50,7 @@ La web y la preparación local son comprobables en este entorno. La validación 
 ## Preparación del despliegue
 
 - `node --test tests/vercel.test.mjs`: 3 casos. El build valida el servidor HTTPS, genera solo recursos públicos y una reescritura de API; no incluye documentos ni secretos. Incluye la regresión del fallo en Vercel: sin variable (o con una vacía) utiliza `https://isla-saber-sdt9.onrender.com`; una configuración explícita puede sustituirlo y sigue validándose.
-- Prueba de cookies Secure y origen público `https://juego.elchucao.cl` detrás de un proxy: aprobada.
+- Prueba de cookies Secure y origen público `https://juego.elchucao.com` detrás de un proxy: aprobada.
 - El recorrido en tres tamaños comprueba ahora también una selección múltiple en la que el segundo archivo está dañado: el primero se conserva y el error parcial se comunica.
 - La publicación en Render/Vercel y el cambio DNS requieren conectar las cuentas del propietario. No están validados por estos tests locales.
 

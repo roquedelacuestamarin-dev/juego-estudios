@@ -40,18 +40,18 @@ No se debe ejecutar este servidor con múltiples workers o réplicas: sus bloque
 
 Publicar el servicio completo en una máquina o contenedor Linux con almacenamiento persistente, Tesseract 5 y Python 3.12/3.13. Ejecutar `scripts/setup.sh` durante la preparación y `scripts/start.sh` como proceso principal. Montar `EDU_DATA_DIR` en disco privado y persistente. Mantener una sola instancia y un solo worker.
 
-## Vercel y juego.elchucao.cl
+## Vercel y juego.elchucao.com
 
-El dominio previsto es **juego.elchucao.cl**. No se necesita cambiar los nameservers de `elchucao.cl` ni sus registros de correo. El operador de DNS puede ser NIC Chile o el proveedor al que apunten los nameservers actuales.
+El dominio previsto es **juego.elchucao.com**. No se necesita cambiar los nameservers de `elchucao.com` ni sus registros de correo. El DNS de este dominio se administra en la otra cuenta de Vercel del propietario; el registro `juego` se agrega allí, mientras que el subdominio se asocia al proyecto en la cuenta que aloja la aplicación.
 
 Una vez que el backend de Render esté operativo:
 
 1. En Vercel, **Add New → Project**, importa el repositorio GitHub existente `roquedelacuestamarin-dev/juego-estudios`, rama `main` y directorio raíz. `vercel.json` utiliza la configuración de web estática; no seleccionar FastAPI como framework.
 2. Este proyecto ya utiliza `https://isla-saber-sdt9.onrender.com` como servidor predeterminado. No necesitas agregar variables para ese servidor. Si lo cambias en el futuro, `EDU_BACKEND_ORIGIN` permite indicar otro origen HTTPS (sin `/api`, rutas ni claves). Una variable ausente o vacía utiliza el servidor predeterminado; un valor explícito inválido sigue deteniendo el build.
 3. Publica el proyecto. `scripts/build-vercel.mjs` genera únicamente recursos públicos y una reescritura `/api/*` hacia Render. No sube documentos, sesiones, claves ni el servidor Python a la web estática.
-4. En **Settings → Domains**, agrega `juego.elchucao.cl`. Copia exactamente el registro DNS indicado por Vercel en el administrador DNS actual del dominio, únicamente para el nombre `juego`. Si ya existe ese registro, revisarlo antes de reemplazarlo. No inventar un destino CNAME, porque Vercel puede asignar uno específico del proyecto.
-5. En Render, establece `EDU_PUBLIC_ORIGIN=https://juego.elchucao.cl` y redespliega. Para probar antes con el dominio temporal de Vercel, usa temporalmente ese origen exacto y cámbialo después al dominio definitivo.
-6. Espera la verificación DNS y HTTPS de Vercel. Comprueba el recorrido desde `juego.elchucao.cl`: sesión, archivo pequeño, extracción, conversación, configuración descargable y eliminación. Comparte esa dirección cuando esté activa para verificarla también desde aquí.
+4. En **Settings → Domains**, agrega `juego.elchucao.com`. Copia exactamente el registro DNS indicado por Vercel en el administrador DNS actual del dominio, únicamente para el nombre `juego`. Si ya existe ese registro, revisarlo antes de reemplazarlo. No inventar un destino CNAME, porque Vercel puede asignar uno específico del proyecto.
+5. El Blueprint declara `EDU_PUBLIC_ORIGIN=https://juego.elchucao.com`. Para un servicio creado antes de esta corrección, abre Render → servicio `isla-saber` → **Environment**, establece esa variable y guarda con redespliegue; alternativamente sincroniza el Blueprint actualizado. Un push al repositorio no demuestra que esa configuración ya se haya aplicado al servicio. Para probar antes con el dominio temporal de Vercel, usa temporalmente ese origen exacto y cámbialo después al dominio definitivo.
+6. Espera la verificación DNS y HTTPS de Vercel. Comprueba el recorrido desde `juego.elchucao.com`: sesión, archivo pequeño, extracción, conversación, configuración descargable y eliminación. Comparte esa dirección cuando esté activa para verificarla también desde aquí.
 
 No hay datos de una cuenta Vercel o Render disponibles en esta sesión; el repositorio y los archivos de despliegue no crean servicios ni modifican DNS por sí solos. No se necesita compartir contraseñas por chat.
 

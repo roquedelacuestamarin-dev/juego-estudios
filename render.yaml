@@ -14,6 +14,8 @@ services:
         value: local
       - key: EDU_COOKIE_SECURE
         value: "true"
+      - key: EDU_PUBLIC_ORIGIN
+        value: https://juego.elchucao.com
       - key: EDU_DATA_DIR
         value: /app/.data
       - key: EDU_EXTRACTION_WORKERS

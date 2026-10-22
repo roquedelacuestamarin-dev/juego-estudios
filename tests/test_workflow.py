@@ -250,11 +250,11 @@ def test_budget_blocks_provider(cfg):
 
 
 def test_public_origin_and_secure_cookies_behind_proxy(cfg):
-    settings = replace(cfg, public_origin='https://juego.elchucao.cl', cookie_secure=True, extraction_workers=1)
+    settings = replace(cfg, public_origin='https://juego.elchucao.com', cookie_secure=True, extraction_workers=1)
     with TestClient(create_app(settings), headers={'X-Isla-Request': '1'}, base_url='https://backend.example.com') as c:
-        good = c.post('/api/session', json={}, headers={'Origin': 'https://juego.elchucao.cl'})
+        good = c.post('/api/session', json={}, headers={'Origin': 'https://juego.elchucao.com'})
         assert good.status_code == 200 and 'Secure' in good.headers['set-cookie']
-        response = c.post('/api/chat', json={'message': 'Llámame Sol'}, headers={'Origin': 'https://juego.elchucao.cl'})
+        response = c.post('/api/chat', json={'message': 'Llámame Sol'}, headers={'Origin': 'https://juego.elchucao.com'})
         assert response.status_code == 200 and response.json()['preferences']['nickname'] == 'Sol'
         assert c.post('/api/chat', json={'message': 'test'}, headers={'Origin': 'https://another.example.com'}).status_code == 403
 

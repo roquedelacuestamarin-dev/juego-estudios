@@ -11,9 +11,9 @@ Primera etapa de una plataforma para preparar aventuras educativas a partir de m
 - Adaptador de OpenAI implementado para conversación y preparación semántica, **pendiente de verificar con credenciales reales**. No hay búsquedas web.
 - Sesiones privadas con cookies HttpOnly, cuotas, rechazo de archivos incompatibles y caducidad de datos. No hay cuentas, cobros ni enlaces compartidos.
 
-## Publicar en juego.elchucao.cl
+## Publicar en juego.elchucao.com
 
-[Desplegar en Render](https://render.com/deploy?repo=https://github.com/roquedelacuestamarin-dev/juego-estudios) con tu cuenta conectada a GitHub. El Blueprint solicita el plan gratuito y modo local sin claves de IA. Después importa este repositorio en Vercel y conecta el subdominio `juego.elchucao.cl`. La aplicación tendrá una dirección pública cuando terminen los despliegues y la verificación DNS. Sigue [los pasos de Render, Vercel y DNS](docs/deployment.md).
+[Desplegar en Render](https://render.com/deploy?repo=https://github.com/roquedelacuestamarin-dev/juego-estudios) con tu cuenta conectada a GitHub. El Blueprint solicita el plan gratuito y modo local sin claves de IA. Después importa este repositorio en Vercel y conecta el subdominio `juego.elchucao.com`. La aplicación tendrá una dirección pública cuando terminen los despliegues y la verificación DNS. Sigue [los pasos de Render, Vercel y DNS](docs/deployment.md).
 
 ## Instalación y ejecución
 
