@@ -26,3 +26,21 @@ test("produce solo la web pública y dirige la API al servidor elegido", async (
     await rm(temp, { recursive: true, force: true });
   }
 });
+
+test("sin variable de Vercel usa el servidor real del proyecto", async () => {
+  const temp = await mkdtemp(path.join(os.tmpdir(), "isla-vercel-default-"));
+  try {
+    for (const value of [undefined, "", "   "]) {
+      const config = await build(value, temp);
+      assert.deepEqual(config.routes[1], {
+        src: "/api/(.*)",
+        dest: "https://isla-saber-sdt9.onrender.com/api/$1"
+      });
+      const saved = JSON.parse(await readFile(path.join(temp, "config.json"), "utf8"));
+      assert.equal(saved.routes[1].dest, config.routes[1].dest);
+    }
+    await assert.rejects(build("http://wrong.example.com", temp));
+  } finally {
+    await rm(temp, { recursive: true, force: true });
+  }
+});

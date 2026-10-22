@@ -3,6 +3,8 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+// Dirección pública del servicio del proyecto; no es una clave ni una credencial.
+export const DEFAULT_BACKEND_ORIGIN = "https://isla-saber-sdt9.onrender.com";
 
 export function backendOrigin(value) {
   if (!value) throw new Error("Configura EDU_BACKEND_ORIGIN en Vercel con la dirección HTTPS del servidor de Render.");
@@ -16,7 +18,7 @@ export function backendOrigin(value) {
 }
 
 export async function build(value, destination = path.join(root, ".vercel/output")) {
-  const backend = backendOrigin(value);
+  const backend = backendOrigin(value?.trim() || DEFAULT_BACKEND_ORIGIN);
   await rm(destination, { recursive: true, force: true });
   await mkdir(path.join(destination, "static"), { recursive: true });
   await cp(path.join(root, "app/static"), path.join(destination, "static/static"), { recursive: true });

@@ -47,7 +47,7 @@ El dominio previsto es **juego.elchucao.cl**. No se necesita cambiar los nameser
 Una vez que el backend de Render esté operativo:
 
 1. En Vercel, **Add New → Project**, importa el repositorio GitHub existente `roquedelacuestamarin-dev/juego-estudios`, rama `main` y directorio raíz. `vercel.json` utiliza la configuración de web estática; no seleccionar FastAPI como framework.
-2. En las variables del proyecto, agrega `EDU_BACKEND_ORIGIN` con el origen HTTPS exacto de Render (sin `/api`, rutas ni claves). No es una credencial. El build falla con un mensaje explícito si falta o es inválido.
+2. Este proyecto ya utiliza `https://isla-saber-sdt9.onrender.com` como servidor predeterminado. No necesitas agregar variables para ese servidor. Si lo cambias en el futuro, `EDU_BACKEND_ORIGIN` permite indicar otro origen HTTPS (sin `/api`, rutas ni claves). Una variable ausente o vacía utiliza el servidor predeterminado; un valor explícito inválido sigue deteniendo el build.
 3. Publica el proyecto. `scripts/build-vercel.mjs` genera únicamente recursos públicos y una reescritura `/api/*` hacia Render. No sube documentos, sesiones, claves ni el servidor Python a la web estática.
 4. En **Settings → Domains**, agrega `juego.elchucao.cl`. Copia exactamente el registro DNS indicado por Vercel en el administrador DNS actual del dominio, únicamente para el nombre `juego`. Si ya existe ese registro, revisarlo antes de reemplazarlo. No inventar un destino CNAME, porque Vercel puede asignar uno específico del proyecto.
 5. En Render, establece `EDU_PUBLIC_ORIGIN=https://juego.elchucao.cl` y redespliega. Para probar antes con el dominio temporal de Vercel, usa temporalmente ese origen exacto y cámbialo después al dominio definitivo.
@@ -60,8 +60,7 @@ La web envía cada archivo en una solicitud separada. El perfil de Render limita
 Para probar el build estático sin desplegar:
 
 ```bash
-# Usar el origen real del backend, no una URL inventada de producción.
-EDU_BACKEND_ORIGIN=https://TU-SERVICIO.onrender.com node scripts/build-vercel.mjs
+node scripts/build-vercel.mjs
 node --test tests/vercel.test.mjs
 ```
 
