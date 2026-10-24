@@ -51,13 +51,14 @@ async function refresh() {
 }
 function render() {
   if (!state) return;
+  if (!state.package) expedition = null;
   $("#mode-label").replaceChildren(
     node("span", "status-dot"),
     document.createTextNode(
       state.mode === "local"
         ? "Modo local · sin IA generativa"
         : state.ai_available
-          ? "Asistente con IA · OpenAI"
+          ? `Asistente con IA · ${state.mode === "gemini" ? "Gemini" : "OpenAI"}`
           : "IA pendiente de credencial",
     ),
   );
@@ -175,11 +176,12 @@ function render() {
           ? "Tu material está listo. Prepararemos el contenido con tus preferencias."
           : "Adjunta material para preparar el contenido de tu aventura.";
   $("#generation-status").textContent = state.package
-    ? `Contenido preparado · ${state.package.topics.length} tema(s) · ${state.package.sources.length} referencia(s). El juego aún no está disponible.`
+    ? `Contenido preparado · ${state.package.topics.length} tema(s) · ${state.package.sources.length} referencia(s). ${state.package.engine?.status === "ready" ? "Tu expedición está lista." : "Vuelve a generar para preparar los retos."}`
     : state.generation_status === "error"
       ? "La preparación no terminó. Revisa el mensaje de error y vuelve a intentarlo."
       : "";
   $("#download-package").hidden = !state.package;
+  $("#play-button").hidden = state.package?.engine?.status !== "ready";
   $("#upload-status").textContent = uploading
     ? "Subiendo archivos…"
     : pending
@@ -208,10 +210,6 @@ async function upload(files, folder = false) {
     );
     return;
   }
-  if (supported.some((file) => file.size > state.limits.file_mb * 1024 ** 2)) {
-    notify(`Cada archivo admite hasta ${state.limits.file_mb} MB.`, true);
-    return;
-  }
   uploading = true;
   render();
   let added = 0;
@@ -219,7 +217,8 @@ async function upload(files, folder = false) {
     // Una petición por archivo mantiene las cargas pequeñas al atravesar el proxy de la web.
     for (const file of supported) {
       const body = new FormData();
-      body.append("files", file);
+      const prepared = await prepareImage(file);
+      body.append("files", prepared);
       await api("/api/files", { method: "POST", body });
       added += 1;
     }
@@ -314,7 +313,7 @@ $("#generate-button").addEventListener("click", async () => {
   try {
     state = await api("/api/generate", { method: "POST", body: "{}" });
     notify(
-      "Contenido educativo preparado. El motor del juego sigue pendiente.",
+      "Expedición preparada. Pulsa Jugar mi expedición para comenzar.",
     );
   } catch (error) {
     notify(error.message, true);
@@ -375,8 +374,7 @@ function showPreferences() {
     form.elements[key].value = state.preferences[key] || "";
   });
   const topics = new Set([
-    "Suma",
-    "Resta",
+    ...(state.package?.topics || []).map((topic) => topic.name),
     ...Object.keys(state.preferences.topic_difficulty),
   ]);
   topics.forEach((topic) => {
@@ -432,8 +430,8 @@ $("#help-button").addEventListener("click", () => {
   [
     "Adjunta material de estudio. Revisa el texto extraído si contiene fórmulas o escritura a mano.",
     "Cuéntale al asistente qué quieres practicar. Puedes ajustar apodo, curso y dificultades en Preferencias.",
-    "Pulsa Generar juego: en esta etapa prepara un paquete educativo con referencias, sin pedir aprobación previa de una historia.",
-    "El videojuego, sus misiones y los enlaces compartidos se incorporarán cuando esté conectado el motor.",
+    "Pulsa Generar juego y después Jugar mi expedición. Resuelve los retos y revisa las explicaciones con sus fuentes.",
+    "En modo local completarás palabras de tus apuntes; con IA se pueden crear preguntas y opciones. Los puntos son de práctica, no una calificación escolar.",
   ].forEach((text) => list.append(node("li", "", text)));
   content.append(
     list,
@@ -450,7 +448,7 @@ $("#privacy-button").addEventListener("click", () => {
   [
     `Usa un apodo y evita adjuntar nombres, direcciones, notas personales o información de otras personas. Esta sesión no requiere una cuenta.`,
     `Los originales se eliminan al terminar la lectura. El texto extraído, la conversación y la configuración se guardan en el servidor hasta ${state?.limits.retention_hours || 24} horas desde el inicio de la sesión; después se eliminan automáticamente.`,
-    "En modo local el procesamiento ocurre en este servidor. Si se activa OpenAI, se envían fragmentos extraídos y mensajes al proveedor. Su retención se rige además por las condiciones de la cuenta del proveedor.",
+    "En modo local el procesamiento ocurre en este servidor. Si se activa OpenAI o Gemini, se envían fragmentos extraídos y mensajes al proveedor. Su retención se rige además por las condiciones de la cuenta del proveedor.",
     "Eliminar un archivo borra su extracción, la conversación y la configuración derivada; conserva las preferencias. Borrar la sesión elimina todos sus datos. No hay enlaces públicos ni documentos compartidos.",
     `Límites por sesión: ${state?.limits.generations || 10} preparaciones y ${state?.limits.chat || 60} mensajes. Se contabilizan también los intentos fallidos para limitar el consumo.`,
   ].forEach((text) => content.append(node("p", "", text)));
@@ -503,3 +501,116 @@ api("/api/session", { method: "POST", body: "{}" })
     notify(error.message, true);
   });
 setInterval(poll, 1500);
+
+
+async function prepareImage(file) {
+  const limit = state.limits.file_mb * 1024 ** 2;
+  if (file.size <= limit) return file;
+  if (!$("#optimize-images").checked || !/\.(png|jpe?g|webp)$/i.test(file.name)) {
+    throw new Error(`Cada archivo admite ${state.limits.file_mb} MB. Para una imagen grande, marca Optimizar imágenes; para PDF, divide el documento.`);
+  }
+  if (file.size > 20 * 1024 ** 2) throw new Error("Para optimizar una imagen, el original debe pesar como máximo 20 MB.");
+  let bitmap;
+  try {
+    bitmap = await createImageBitmap(file);
+    if (bitmap.width * bitmap.height > 40_000_000) throw new Error("Imagen demasiado grande. Exporta una copia de menor resolución.");
+    const canvas = document.createElement("canvas");
+    // Preserve full resolution first; only downsample if necessary for the upload.
+    const initialScale = Math.min(1, Math.sqrt(19_900_000 / (bitmap.width * bitmap.height)));
+    for (const factor of [1, .85, .7, .5]) {
+      const scale = initialScale * factor;
+      canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+      canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", .9));
+      if (blob && blob.size <= limit) return new File([blob], file.name.replace(/\.[^.]+$/, "-optimizada.jpg"), {type: "image/jpeg"});
+    }
+    throw new Error("No logramos reducir esta imagen sin bajar demasiado su detalle. Divídela en secciones legibles.");
+  } finally {
+    bitmap?.close();
+  }
+}
+
+let expedition = null;
+const normalizedAnswer = (value) => value.trim().toLocaleLowerCase("es").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ");
+$("#play-button").addEventListener("click", () => {
+  if (state.package?.engine?.status !== "ready") return;
+  const signature = JSON.stringify(state.package);
+  if (expedition?.signature !== signature) expedition = {signature, index: 0, answers: [], score: 0};
+  showChallenge();
+});
+function showChallenge() {
+  const pack = state.package;
+  const activities = pack.engine.activities;
+  const content = node("div", "expedition");
+  content.append(node("p", "eyebrow", `EXPEDICIÓN · ${expedition.score} PUNTOS`));
+  const trail = node("div", "game-trail");
+  trail.setAttribute("aria-label", `Progreso: ${expedition.answers.length} de ${activities.length} retos`);
+  activities.forEach((_, i) => trail.append(node("span", i < expedition.answers.length ? "visited" : "", i < expedition.answers.length ? "★" : "○")));
+  content.append(trail);
+  if (expedition.index >= activities.length) {
+    content.append(node("h3", "", "¡Llegaste a la biblioteca de la isla!"), node("p", "", `Completaste ${activities.length} retos. Acertaste ${expedition.score / 10} en el primer intento. Puedes repasar las explicaciones y volver a jugar.`));
+    activities.forEach((activity, i) => {
+      const review = node("details", "game-review");
+      review.append(node("summary", "", `Reto ${i + 1} · ${expedition.answers[i].correct ? "Acertado" : "Para repasar"}`), node("p", "", activity.prompt), node("p", "", `Respuesta: ${activity.answer}`), node("p", "", activity.explanation));
+      content.append(review);
+    });
+    const again = node("button", "primary-button", "Volver a jugar");
+    again.onclick = () => { expedition.index = 0; expedition.answers = []; expedition.score = 0; showChallenge(); };
+    content.append(again);
+  } else {
+    const activity = activities[expedition.index];
+    content.append(node("h3", "", `Parada ${expedition.index + 1} de ${activities.length}`), node("p", "game-question", activity.prompt));
+    const form = node("form", "game-answer");
+    const feedback = node("div", "game-feedback");
+    feedback.setAttribute("role", "status");
+    const submitAnswer = (value) => {
+      if (expedition.answers[expedition.index]) return;
+      const correct = normalizedAnswer(value) === normalizedAnswer(activity.answer);
+      expedition.answers.push({correct});
+      if (correct) expedition.score += 10;
+      form.querySelectorAll("input, button").forEach((el) => el.disabled = true);
+      feedback.append(node("h4", "", correct ? "¡Correcto! +10 puntos" : "Sigamos aprendiendo"), node("p", "", `Respuesta: ${activity.answer}`), node("p", "", activity.explanation));
+      activity.source_ids.forEach((id) => {
+        const source = pack.sources.find((item) => item.id === id);
+        if (!source) return;
+        const reference = node("details", "game-review");
+        reference.append(node("summary", "", `${source.filename}${source.page ? ` · página ${source.page}` : ""}`), node("p", "", source.excerpt));
+        feedback.append(reference);
+      });
+      const next = node("button", "primary-button", expedition.index + 1 === activities.length ? "Ver resultado" : "Siguiente parada");
+      next.onclick = () => { expedition.index += 1; showChallenge(); };
+      feedback.append(next);
+      next.focus();
+    };
+    if (activity.kind === "choice") {
+      activity.options.forEach((option) => {
+        const button = node("button", "game-option", option);
+        button.type = "button";
+        button.onclick = () => submitAnswer(option);
+        form.append(button);
+      });
+    } else {
+      const label = node("label", "", "Tu respuesta");
+      const input = node("input");
+      input.required = true; input.maxLength = 300; input.autocomplete = "off";
+      label.append(input);
+      const submit = node("button", "primary-button", "Comprobar");
+      submit.type = "submit";
+      form.append(label, submit);
+      form.onsubmit = (event) => { event.preventDefault(); if (input.value.trim()) submitAnswer(input.value); };
+    }
+    content.append(form, feedback);
+    // Reopening a closed window resumes at the next unanswered challenge.
+    if (expedition.answers[expedition.index]) { expedition.index += 1; showChallenge(); return; }
+  }
+  if ($("#modal").open) {
+    $("#modal-title").textContent = pack.title;
+    $("#modal-content").replaceChildren(content);
+  } else openModal(pack.title, content);
+  const focusTarget = content.querySelector("input, button");
+  focusTarget?.focus();
+}

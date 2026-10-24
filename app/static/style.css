@@ -1402,3 +1402,20 @@ dialog::backdrop {
     align-items: center;
   }
 }
+
+/* Expedición de repaso: controles accesibles con teclado y móvil. */
+.image-option { display: block; font-size: .8rem; line-height: 1.6; margin: 12px 0; }
+.image-option input { margin-right: 6px; }
+#play-button { margin: 12px 0; }
+.game-trail { display: flex; justify-content: space-around; gap: 8px; background: #eef3e7; border-radius: 16px; padding: 20px 10px; color: #526446; font-size: 1.6rem; margin: 16px 0; }
+.game-trail .visited { color: #755300; }
+.game-question { font-size: 1.1rem; line-height: 1.7; white-space: pre-wrap; }
+.game-answer { display: grid; gap: 12px; margin: 20px 0; }
+.game-answer label { display: grid; gap: 8px; }
+.game-answer input, .game-option { font: inherit; padding: 14px; border: 1px solid #7c8a76; border-radius: 10px; width: 100%; background: white; color: #234d3c; }
+.game-option { text-align: left; cursor: pointer; }
+.game-option:hover { background: #eef3e7; }
+.game-feedback { line-height: 1.7; }
+.game-review { padding: 12px 0; border-top: 1px solid #dce3d5; overflow-wrap: anywhere; }
+.game-review summary { cursor: pointer; }
+.expedition p { overflow-wrap: anywhere; }

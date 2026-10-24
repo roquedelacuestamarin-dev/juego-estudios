@@ -19,13 +19,13 @@ class Settings:
     cookie_secure: bool = os.getenv("EDU_COOKIE_SECURE", "false").lower() == "true"
     ai_mode: str = os.getenv("EDU_AI_MODE", "local")
     ai_key: str = os.getenv("EDU_AI_API_KEY", "")
-    ai_model: str = os.getenv("EDU_AI_MODEL", "gpt-4.1-mini")
+    ai_model: str = os.getenv("EDU_AI_MODEL", "gemini-2.5-flash-lite" if os.getenv("EDU_AI_MODE") == "gemini" else "gpt-4.1-mini")
     public_origin: str = os.getenv("EDU_PUBLIC_ORIGIN", os.getenv("RENDER_EXTERNAL_URL", "")).rstrip("/")
     extraction_workers: int = int(os.getenv("EDU_EXTRACTION_WORKERS", "2"))
 
     def __post_init__(self):
-        if self.ai_mode not in {"local", "openai"}:
-            raise ValueError("EDU_AI_MODE debe ser local u openai")
+        if self.ai_mode not in {"local", "openai", "gemini"}:
+            raise ValueError("EDU_AI_MODE debe ser local, openai o gemini")
         for field in ("max_file_bytes", "max_session_bytes", "max_pages", "max_text_chars",
                       "max_generations", "max_chat", "max_ai_tokens", "retention_hours", "extraction_workers"):
             if getattr(self, field) <= 0:

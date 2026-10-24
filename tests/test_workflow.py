@@ -54,8 +54,8 @@ def test_end_to_end_preferences_sources_cache_and_deletion(client, pdf):
     generated = client.post('/api/generate', json={})
     assert generated.status_code == 200, generated.text
     package = validate_references(EducationPackage.model_validate(generated.json()['package']))
-    assert package.engine.status == 'not_integrated'
-    assert package.engine.activities == []
+    assert package.engine.status == 'ready'
+    assert len(package.engine.activities) > 0
     assert {t.name: t.difficulty for t in package.topics} == {'Suma': 'facil', 'Resta': 'dificil'}
     assert package.sources[0].page == 1
     assert '5 + 3 = 8' in package.sources[0].excerpt
@@ -184,7 +184,7 @@ def test_invalid_contract_rejects_code_and_fake_sources(client, pdf):
     payload['engine']['activities'] = [{'code': 'eval(secret)'}]
     with pytest.raises(ValueError):
         EducationPackage.model_validate(payload)
-    payload['engine']['activities'] = []
+    payload['engine']['activities'] = [{'kind': 'recall', 'prompt': 'Completa', 'answer': 'suma', 'explanation': 'La suma', 'source_ids': [payload['sources'][0]['id']]}]
     payload['topics'][0]['objectives'][0]['source_ids'] = ['invented']
     with pytest.raises(ValueError, match='inexistente'):
         validate_references(EducationPackage.model_validate(payload))
@@ -265,35 +265,38 @@ def test_untrusted_source_cannot_change_rules(client):
         pdf = doc.tobytes()
     upload_pdf(client, pdf)
     payload = client.post('/api/generate', json={}).json()['package']
-    assert payload['engine']['status'] == 'not_integrated'
+    assert payload['engine']['status'] == 'ready'
     assert payload['topics'][0]['name'] == 'Suma'
     assert payload['preferences']['nickname'] == 'Explorador'
 
 
-@pytest.mark.parametrize('case', ['success', 'bad_json', 'fake_ref'])
-def test_structured_provider_responses(cfg, pdf, monkeypatch, case):
+@pytest.mark.parametrize('mode', ['openai', 'gemini'])
+@pytest.mark.parametrize('case', ['success', 'bad_json', 'fake_ref', 'bad_answer'])
+def test_structured_provider_responses(cfg, pdf, monkeypatch, case, mode):
     class Provider:
         def __init__(self, **kwargs): pass
         async def __aenter__(self): return self
         async def __aexit__(self, *args): pass
         async def post(self, url, **kwargs):
-            assert url == 'https://api.openai.com/v1/chat/completions'
+            assert url == ('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions' if mode == 'gemini' else 'https://api.openai.com/v1/chat/completions')
             body = kwargs['json']
             assert 'tools' not in body and 'test-secret' not in json.dumps(body)
             context = json.loads(body['messages'][1]['content'])
             ref = context['untrusted_sources'][0]['id'] if case != 'fake_ref' else 'invented'
-            content = json.dumps({'title': 'Repaso de suma', 'topics': [{'name': 'Suma', 'difficulty': 'media',
+            content = json.dumps({'title': 'Repaso de suma', 'activities': [{'kind': 'choice', 'prompt': '¿Cuánto es 5 + 3?', 'answer': '8', 'options': ['8', '7'], 'explanation': 'El material indica 5 + 3 = 8.', 'source_ids': [ref]}], 'topics': [{'name': 'Suma', 'difficulty': 'media',
                 'objectives': [{'description': 'Explicar la suma con el ejemplo del material.', 'source_ids': [ref]}]}]})
+            if case == 'bad_answer':
+                parsed = json.loads(content); parsed['activities'][0]['answer'] = '99'; content = json.dumps(parsed)
             if case == 'bad_json':
                 content = 'not JSON'
             return httpx.Response(200, json={'choices': [{'message': {'content': content}}]})
     monkeypatch.setattr(agent.httpx, 'AsyncClient', Provider)
-    with TestClient(create_app(replace(cfg, ai_mode='openai', ai_key='test-secret')), headers={'X-Isla-Request': '1'}) as c:
+    with TestClient(create_app(replace(cfg, ai_mode=mode, ai_key='test-secret')), headers={'X-Isla-Request': '1'}) as c:
         c.post('/api/session', json={}); upload_pdf(c, pdf)
         response = c.post('/api/generate', json={})
         if case == 'success':
             assert response.status_code == 200
-            assert response.json()['package']['preparation_mode'] == 'openai'
+            assert response.json()['package']['preparation_mode'] == mode
             validate_references(EducationPackage.model_validate(response.json()['package']))
         else:
             assert response.status_code == 422

@@ -67,3 +67,12 @@ node --test tests/vercel.test.mjs
 La versión estática sigue necesitando Render para todos los endpoints `/api/*`. No existe un juego jugable ni conversación generativa de IA hasta completar las integraciones correspondientes.
 
 Para escalar: PostgreSQL, almacenamiento temporal con caducidad, cola de trabajos externa y cuotas autenticadas compartidas; separar workers OCR de la API. Se necesitan esos cambios antes de múltiples réplicas. La integración del juego será un servicio/adaptador distinto.
+
+
+## Actualización: expedición y Gemini
+
+Después de publicar el commit en GitHub, Vercel puede desplegar la web automáticamente. Render tiene `autoDeploy: false`: en el servicio **isla-saber → Manual Deploy → Deploy latest commit**, actualizar el servidor y esperar a que esté Live. `/api/health` debe indicar `engine: ready`. Si solo se actualiza Vercel, el backend antiguo seguirá preparando paquetes sin juego; la web permite volver a generar cuando el servidor esté actualizado.
+
+La optimización opcional permite seleccionar imágenes originales de hasta 20 MB y convertirlas a JPEG dentro del límite individual anunciado por el servidor (3 MB en el perfil de Render). Primero conserva resolución cuando puede; si necesita reducirla, mantiene calidad JPEG 90 %. También limita a menos de 20 megapíxeles. No modifica el original del dispositivo. Revisar siempre OCR. PDF/DOCX/PPTX grandes siguen requiriendo dividir el archivo; no se cambian los límites del proxy.
+
+La conexión de IA está implementada, pero necesita configurar la clave en Render. Para probar Gemini: Environment → `EDU_AI_MODE=gemini`, `EDU_AI_MODEL=gemini-2.5-flash-lite`, `EDU_AI_API_KEY` con una clave propia de Google AI Studio. Guardar y desplegar. Nunca poner la clave en Vercel, GitHub, capturas ni el chat. Comprobar cuota y condiciones del proveedor. Para volver al modo sin llamadas externas, usar `EDU_AI_MODE=local`.

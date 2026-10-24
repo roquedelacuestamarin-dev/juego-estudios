@@ -6,7 +6,7 @@ Entorno: Linux, Python 3.12.14, Tesseract 5 con modelo español `tessdata_fast` 
 
 `bash scripts/setup.sh`: instalación repetible y verificación del checksum del modelo. La segunda ejecución reutilizó las dependencias y el modelo.
 
-`.venv/bin/pytest -q`: **26 casos aprobados**. Cobertura:
+`.venv/bin/pytest -q`: **31 casos aprobados**. Cobertura:
 
 - Recorrido de material → conversación → preferencias por tema → paquete válido con referencias → reutilización sin nueva generación → eliminación.
 - Formatos no permitidos, extensiones falsas, archivo vacío, más de 20 archivos, tamaño, cuota acumulada, duplicados y rechazo atómico de lotes.
@@ -17,12 +17,12 @@ Entorno: Linux, Python 3.12.14, Tesseract 5 con modelo español `tessdata_fast` 
 - Eliminación de originales aún en cola al borrar la sesión.
 - Contrato sin código/actividades arbitrarias y rechazo de referencias inexistentes.
 - Presupuesto y cuota de generaciones, ausencia de credenciales y fallo simulado del proveedor; conservación del material tras el fallo.
-- Respuestas simuladas del proveedor: contrato correcto, JSON inválido y referencias inventadas. Solo la respuesta válida produce un paquete; estas pruebas no son llamadas reales a OpenAI.
+- Respuestas simuladas del proveedor: contrato correcto, JSON inválido y referencias inventadas. Solo la respuesta válida produce un paquete; incluyen OpenAI y Gemini y respuestas fuera de las opciones. Estas pruebas no son llamadas reales a proveedores.
 - Documento con instrucciones maliciosas tratado como fuente, sin cambiar reglas en modo local.
 
 El runner muestra un aviso de deprecación de Starlette sobre su adaptador de pruebas httpx; no es un fallo de ejecución. La suite no usa pruebas omitidas ni resultados simulados como evidencia de llamadas reales al proveedor.
 
-`.venv/bin/python scripts/browser_smoke.py`: **3 recorridos aprobados** en Chromium a 1440×1050, 820×1180 y 390×844. Carga real mediante la interfaz, chat, persistencia al recargar, preferencias por tema, preparación y descarga JSON, vista de fuentes, uso de Escape en diálogo, cambio de apodo, prevención de HTML inyectado, borrado de archivo y sesión. Sin errores JavaScript ni desbordamiento horizontal inicial. Capturas en `test-results/`.
+`.venv/bin/python scripts/browser_smoke.py`: **3 recorridos aprobados** en Chromium a 1440×1050, 820×1180 y 390×844. Carga real mediante la interfaz, chat, persistencia al recargar, preferencias por tema, preparación y descarga JSON, vista de fuentes, uso de Escape en diálogo, cambio de apodo, prevención de HTML inyectado, borrado de archivo y sesión. Sin errores JavaScript ni desbordamiento horizontal inicial. Capturas en `test-results/`. Además, cada tamaño completa y reinicia la expedición, comprueba respuestas correctas/incorrectas y verifica que no haya materias prefijadas. Una imagen PNG sintética de más de 3 MB se rechaza sin optimización; al activarla, se carga y se comprueba su texto mediante OCR real.
 
 ## Límites de la evidencia
 
@@ -45,7 +45,7 @@ El auditor se inyecta mediante DevTools solo en las pruebas; la CSP de la aplica
 - No existe motor jugable, cálculo de estrellas, misiones, cobros ni enlaces públicos.
 - No se probó Vercel ni otro alojamiento externo. El procedimiento propuesto está en `deployment.md`.
 
-La web y la preparación local son comprobables en este entorno. La validación de la conversación con IA y la integración del videojuego siguen siendo etapas distintas y pendientes.
+La web y la preparación local son comprobables en este entorno. La expedición de repaso está probada localmente. La conversación con IA real y el mundo explorable siguen pendientes.
 
 ## Preparación del despliegue
 

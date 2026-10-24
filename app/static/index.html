@@ -123,27 +123,13 @@
                       ¿Qué te gustaría aprender hoy? Adjunta tus apuntes y
                       cuéntame qué quieres practicar.
                     </p>
-                    <p>Podemos empezar con algo así:</p>
-                    <blockquote>
-                      “Quiero estudiar suma y resta. Haz las sumas más fáciles y
-                      las restas un poco más difíciles”.
-                    </blockquote>
                     <p class="welcome-note">
-                      Yo preparo el contenido. El videojuego se incorporará en
-                      una próxima etapa.
+                      Tú eliges la materia. Crearé retos a partir de tus apuntes;
+                      no tienes ninguna asignatura seleccionada de antemano.
                     </p>
                   </div>
                 </div>
               </article>
-            </div>
-            <div class="suggestions" aria-label="Ideas para comenzar">
-              <button
-                data-prompt="Quiero estudiar suma y resta. Haz las sumas más fáciles y las restas un poco más difíciles."
-              >
-                ＋ Practicar matemáticas</button
-              ><button data-prompt="Quiero repasar ciencias con mis apuntes.">
-                ＋ Repasar ciencias
-              </button>
             </div>
             <form id="chat-form" class="composer">
               <label class="sr-only" for="message-input"
@@ -198,8 +184,7 @@
                 <h2>Un mundo por descubrir</h2>
                 <p>Primero, preparemos tu equipaje.</p>
                 <span class="engine-badge"
-                  ><span aria-hidden="true">◷</span> Motor del juego
-                  pendiente</span
+                  ><span aria-hidden="true">◷</span> Expedición de repaso</span
                 >
               </div>
             </section>
@@ -236,6 +221,10 @@
               <p class="file-limits" id="file-limits">
                 Hasta 20 archivos · 10 MB por archivo
               </p>
+              <label class="image-option"><input type="checkbox" id="optimize-images" />
+                Optimizar imágenes grandes (hasta 20 MB) antes de subirlas.
+                Puede reducir el detalle: revisa el texto extraído.
+              </label>
               <ul
                 id="file-list"
                 class="file-list"
@@ -280,14 +269,14 @@
                 </svg>
               </button>
               <p class="generation-note">
-                Por ahora, este paso prepara el contenido educativo. Todavía no
-                podrás jugar.
+                Completa retos basados en tus apuntes, descubre las respuestas y avanza por la isla.
               </p>
               <div
                 id="generation-status"
                 role="status"
                 class="generation-status"
               ></div>
+              <button id="play-button" class="primary-button" hidden>Jugar mi expedición</button>
               <a
                 id="download-package"
                 class="download-link"
@@ -362,7 +351,7 @@
           <legend>Dificultad por tema</legend>
           <div id="topic-preferences"></div>
           <p class="muted">
-            Puedes pedir, por ejemplo: “sumas fáciles y restas difíciles”.
+            Los temas aparecen cuando los indicas o preparas tu material. No hay materias predeterminadas.
           </p>
         </fieldset>
         <button class="primary-button" type="submit">

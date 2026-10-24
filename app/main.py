@@ -93,7 +93,7 @@ def create_app(cfg: Settings | None = None):
     def public_state(state):
         return {**state, "files": [{k: v for k, v in f.items() if k not in {"pages", "digest"}} for f in state["files"]],
                 "ai_available": cfg.ai_mode == "local" or bool(cfg.ai_key), "mode": cfg.ai_mode,
-                "external_search": False, "engine_status": "not_integrated",
+                "external_search": False, "engine_status": "ready",
                 "limits": {"files": cfg.max_files, "file_mb": cfg.max_file_bytes // 1024**2,
                            "session_mb": cfg.max_session_bytes // 1024**2, "pages": cfg.max_pages,
                            "text_chars": cfg.max_text_chars, "generations": cfg.max_generations,
@@ -149,7 +149,7 @@ def create_app(cfg: Settings | None = None):
     async def health():
         return {"status": "ok", "mode": cfg.ai_mode, "ai_configured": bool(cfg.ai_key),
                 "ocr_available": bool(shutil.which("tesseract") and (cfg.tessdata_dir / "spa.traineddata").is_file()),
-                "engine": "not_integrated"}
+                "engine": "ready"}
 
     @app.post("/api/session")
     async def get_session(request: Request):
@@ -366,7 +366,7 @@ def create_app(cfg: Settings | None = None):
                 raise HTTPException(422, "Hay material que necesita revisión. Sustitúyelo o elimínalo para no preparar contenido incompleto.")
             fingerprint = hashlib.sha256(json.dumps({"files": [f["digest"] for f in state["files"]],
                 "prefs": state["preferences"], "messages": state["messages"], "mode": cfg.ai_mode,
-                "model": cfg.ai_model}, sort_keys=True).encode()).hexdigest()
+                "model": cfg.ai_model, "engine_version": "1.0"}, sort_keys=True).encode()).hexdigest()
             if state["package"] and state["fingerprint"] == fingerprint:
                 return public_state(state)
             if state["generations"] >= cfg.max_generations:

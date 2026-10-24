@@ -19,7 +19,7 @@ with httpx.Client(base_url='http://127.0.0.1:8000',headers={'X-Isla-Request':'1'
     else:
         raise AssertionError('El servidor no inició')
     assert health.json()['ocr_available'] is True
-    assert health.json()['engine']=='not_integrated'
+    assert health.json()['engine']=='ready'
     assert 'Isla Saber' in client.get('/').text
     assert client.post('/api/session',json={}).status_code==200
     with fitz.open() as doc:
@@ -48,7 +48,7 @@ with httpx.Client(base_url='http://127.0.0.1:8000',headers={'X-Isla-Request':'1'
     assert result.status_code==200,result.text
     package=result.json()['package']
     assert package['preferences']['topic_difficulty']=={'Suma':'facil','Resta':'dificil'}
-    assert package['engine']['status']=='not_integrated'
+    assert package['engine']['status']=='ready'
     assert client.delete('/api/session').status_code==200
     assert client.get('/api/state').status_code==401
     print('PASS Docker: web, PDF, OCR español, chat, preferencias, paquete con fuentes y borrado; límite 512 MB.')

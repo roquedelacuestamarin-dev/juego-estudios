@@ -1,14 +1,16 @@
 # Isla Saber
 
-Primera etapa de una plataforma para preparar aventuras educativas a partir de material de estudio. Interfaz original en español con estética de exploración y pixel art. **No incluye todavía un videojuego ni misiones jugables.**
+Primera etapa de una plataforma para preparar aventuras educativas a partir de material de estudio. Interfaz original en español con estética de exploración y pixel art. **Incluye una primera expedición de retos de repaso. El mundo explorable y las misiones narrativas siguen pendientes.**
 
 ## Qué funciona
 
 - Conversación, carga múltiple, arrastrar archivos, selección opcional de carpetas, estados, eliminación y vista del texto extraído.
 - PDF digital y escaneado; JPG, PNG y WebP con OCR real en español (Tesseract). DOCX y PPTX: texto y tablas.
 - Asistente local por reglas: reconoce temas básicos, apodo, curso y dificultad por tema. Por ejemplo: `Llámame Luna. Estoy en 7º básico. Sumas fáciles y restas difíciles.` Conserva preferencias durante la sesión y permite corregirlas mediante un formulario.
+- Juego en navegador con progreso, puntos, respuestas y explicaciones con fuentes. Modo local: completar fragmentos; IA: preguntas de opción o respuesta breve. No ejecuta código generado.
+- Optimización opcional de imágenes originales de hasta 20 MB para ajustarlas al límite del servidor. Requiere revisar la legibilidad del texto extraído. No aumenta el límite de PDF.
 - Preparación de un paquete JSON validado, versionado y relacionado con fuentes/páginas. Sin confirmación previa de historia o misiones.
-- Adaptador de OpenAI implementado para conversación y preparación semántica, **pendiente de verificar con credenciales reales**. No hay búsquedas web.
+- Adaptadores de OpenAI y Gemini implementados para conversación y preparación semántica, **pendiente de verificar con credenciales reales**. No hay búsquedas web.
 - Sesiones privadas con cookies HttpOnly, cuotas, rechazo de archivos incompatibles y caducidad de datos. No hay cuentas, cobros ni enlaces compartidos.
 
 ## Publicar en juego.elchucao.com
@@ -41,7 +43,13 @@ Para OpenAI, configura **en el gestor de secretos del servidor**, nunca en el na
 
 Reinicia el servidor. Los errores del proveedor se muestran sin revelar respuestas internas ni credenciales. No hay cambio silencioso al modo local cuando falla la IA. Una suscripción de ChatGPT no incluye consumo de la API. Los límites de la aplicación no reemplazan los límites de facturación del proveedor.
 
-Gemini y Ollama **no están implementados**. El adaptador está concentrado en `app/agent.py` para incorporarlos posteriormente. No se enviaron documentos a servicios externos durante esta entrega.
+Para Gemini, configura en Render → servicio isla-saber → Environment:
+
+- `EDU_AI_MODE=gemini`
+- `EDU_AI_API_KEY`: clave creada en Google AI Studio, guardada solo en Render.
+- `EDU_AI_MODEL=gemini-2.5-flash-lite` (o un modelo compatible disponible en tu cuenta).
+
+Gemini se conecta mediante la API compatible con OpenAI. La disponibilidad de cuota gratuita depende del modelo, región y cuenta; comprueba las condiciones vigentes en Google AI Studio. Los límites gratuitos pueden provocar errores de cuota; no se activa un proveedor de pago automáticamente. Ambos adaptadores están probados con respuestas simuladas, pendientes de prueba con una clave real. Ollama no está implementado. No se enviaron documentos a servicios externos durante esta entrega.
 
 `.env.example` documenta las variables; `.env` no se carga automáticamente. Exporta las variables o utiliza el gestor del alojamiento. Reinicia tras cambios de configuración.
 
