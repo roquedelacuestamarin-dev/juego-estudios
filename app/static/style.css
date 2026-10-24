@@ -1425,3 +1425,7 @@ dialog::backdrop {
 .upload-actions { display: flex; align-items: center; gap: 20px; margin-top: 20px; }
 .upload-actions .primary-button { width: auto; flex: 1; }
 #chat-upload-status { padding-inline: 16px; }
+
+.chat-material-tools { padding: 0 20px; }
+.chat-material-tools .file-limits { margin: 6px 0; }
+.composer.dragover { outline: 2px dashed #234d3c; outline-offset: -2px; background: #eef3e7; }

@@ -57,6 +57,8 @@ def main():
                         assert not audit['violations'], [(v['id'], [n['target'] for n in v['nodes']]) for v in audit['violations']]
                         print(f'PASS accesibilidad automatizada {name}: 0 infracciones detectadas', flush=True)
                     expect(page.locator('#generate-button')).to_be_disabled()
+                    expect(page.locator('#materials input[type=file], #materials .drop-zone, #materials #folder-button')).to_have_count(0)
+                    expect(page.locator('#material-empty')).to_be_visible()
                     expect(page.locator('[data-prompt]')).to_have_count(0)
                     page.locator('#mobile-settings').click()
                     expect(page.locator('#topic-preferences select')).to_have_count(0)

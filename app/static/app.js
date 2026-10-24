@@ -156,6 +156,7 @@ function render() {
     ["needs_review", "error"].includes(file.status),
   );
   const hasFiles = state.files.length > 0;
+  $("#material-empty").hidden = hasFiles;
   $("#generate-button").disabled =
     generating ||
     chatting ||
@@ -268,33 +269,29 @@ $("#folder-input").addEventListener("change", (event) =>
   upload(event.target.files, true),
 );
 $("#chat-attach").addEventListener("click", () => $("#file-input").click());
-$("#drop-zone").addEventListener("keydown", (event) => {
-  if (["Enter", " "].includes(event.key)) {
-    event.preventDefault();
-    $("#file-input").click();
-  }
-});
 ["dragenter", "dragover"].forEach((name) =>
-  $("#drop-zone").addEventListener(name, (event) => {
+  $("#chat-form").addEventListener(name, (event) => {
+    if (!event.dataTransfer?.types.includes("Files")) return;
     event.preventDefault();
-    $("#drop-zone").classList.add("dragover");
+    $("#chat-form").classList.add("dragover");
   }),
 );
 ["dragleave", "drop"].forEach((name) =>
-  $("#drop-zone").addEventListener(name, (event) => {
+  $("#chat-form").addEventListener(name, (event) => {
+    if (!event.dataTransfer?.types.includes("Files")) return;
     event.preventDefault();
-    $("#drop-zone").classList.remove("dragover");
+    $("#chat-form").classList.remove("dragover");
   }),
 );
-$("#drop-zone").addEventListener("drop", (event) =>
-  upload(event.dataTransfer.files),
-);
+$("#chat-form").addEventListener("drop", (event) => {
+  if (event.dataTransfer?.files.length) upload(event.dataTransfer.files);
+});
 if ("webkitdirectory" in document.createElement("input"))
   $("#folder-button").hidden = false;
 $("#folder-button").addEventListener("click", () => $("#folder-input").click());
 function showMaterials() {
   $("#materials").scrollIntoView({ behavior: "smooth", block: "start" });
-  $("#drop-zone").focus({ preventScroll: true });
+  $("#material-title").focus({ preventScroll: true });
 }
 $("#nav-material").addEventListener("click", showMaterials);
 document.querySelectorAll("[data-prompt]").forEach((button) =>

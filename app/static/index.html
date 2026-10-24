@@ -159,6 +159,24 @@
                 </button>
               </div>
             </form>
+            <div class="chat-material-tools">
+              <input id="file-input" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.docx,.pptx" hidden />
+              <button
+                class="text-button folder-button"
+                id="folder-button"
+                hidden
+              >
+                Seleccionar una carpeta</button
+              ><input
+                type="file"
+                id="folder-input"
+                multiple
+                webkitdirectory
+                hidden
+              />
+              <p class="file-limits" id="file-limits">Consultando límites de archivos…</p>
+              <p class="file-limits">PDF, imágenes, DOCX y PPTX. También puedes arrastrarlos al cuadro de texto.</p>
+            </div>
             <p id="chat-upload-status" class="chat-footnote" role="status"></p>
             <p class="chat-footnote">
               <svg aria-hidden="true">
@@ -195,52 +213,16 @@
               aria-labelledby="material-title"
             >
               <header class="section-heading">
-                <h2 id="material-title">Tu material de estudio</h2>
+                <h2 id="material-title" tabindex="-1">Archivos adjuntos</h2>
                 <span id="file-count">0 / 20</span>
               </header>
-              <label
-                for="file-input"
-                class="drop-zone"
-                id="drop-zone"
-                tabindex="0"
-                role="button"
-                aria-label="Seleccionar material de estudio"
-                ><svg aria-hidden="true">
-                  <use href="/static/icons.svg#upload" /></svg
-                ><strong>Trae tus apuntes</strong
-                ><span>Arrastra archivos o <u>explora tu dispositivo</u></span
-                ><small>PDF, JPG, PNG, WebP, DOCX y PPTX</small></label
-              ><input
-                id="file-input"
-                type="file"
-                multiple
-                accept=".pdf,.jpg,.jpeg,.png,.webp,.docx,.pptx"
-                class="sr-only"
-                tabindex="-1"
-                aria-label="Archivos de estudio"
-              />
-              <p class="file-limits" id="file-limits">
-                Hasta 20 archivos · 10 MB por archivo
-              </p>
+              <p id="material-empty" class="muted">Aquí aparecerán los archivos que adjuntes desde el chat.</p>
               <ul
                 id="file-list"
                 class="file-list"
                 aria-label="Archivos adjuntos"
               ></ul>
               <p id="upload-status" class="upload-status" role="status"></p>
-              <button
-                class="text-button folder-button"
-                id="folder-button"
-                hidden
-              >
-                Seleccionar una carpeta</button
-              ><input
-                type="file"
-                id="folder-input"
-                multiple
-                webkitdirectory
-                hidden
-              />
               <details class="format-details">
                 <summary>Qué podemos leer</summary>
                 <p>
