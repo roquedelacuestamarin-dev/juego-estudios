@@ -1419,3 +1419,9 @@ dialog::backdrop {
 .game-review { padding: 12px 0; border-top: 1px solid #dce3d5; overflow-wrap: anywhere; }
 .game-review summary { cursor: pointer; }
 .expedition p { overflow-wrap: anywhere; }
+
+#image-upload-dialog p { line-height: 1.6; }
+#image-upload-list { padding-left: 20px; overflow-wrap: anywhere; }
+.upload-actions { display: flex; align-items: center; gap: 20px; margin-top: 20px; }
+.upload-actions .primary-button { width: auto; flex: 1; }
+#chat-upload-status { padding-inline: 16px; }

@@ -145,7 +145,7 @@
                   <svg aria-hidden="true">
                     <use href="/static/icons.svg#clip" />
                   </svg>
-                  Ir a mis archivos</button
+                  Adjuntar archivos</button
                 ><span class="input-hint">Enter para enviar</span
                 ><button
                   class="send-button"
@@ -159,6 +159,7 @@
                 </button>
               </div>
             </form>
+            <p id="chat-upload-status" class="chat-footnote" role="status"></p>
             <p class="chat-footnote">
               <svg aria-hidden="true">
                 <use href="/static/icons.svg#shield" />
@@ -197,10 +198,6 @@
                 <h2 id="material-title">Tu material de estudio</h2>
                 <span id="file-count">0 / 20</span>
               </header>
-              <label class="image-option"><input type="checkbox" id="optimize-images" />
-                Optimizar imágenes grandes (hasta 20 MB) antes de subirlas.
-                Puede reducir el detalle: revisa el texto extraído.
-              </label>
               <label
                 for="file-input"
                 class="drop-zone"
@@ -303,6 +300,19 @@
       </main>
     </div>
     <div id="toast" role="status" class="toast" hidden></div>
+    <dialog id="image-upload-dialog" aria-labelledby="image-upload-title">
+      <form method="dialog">
+        <h2 id="image-upload-title">Preparar imágenes grandes</h2>
+        <p id="image-upload-description"></p>
+        <ul id="image-upload-list"></ul>
+        <p>Podemos reducir su peso antes de subirlas. El original de tu dispositivo no cambia.
+          Puede perderse detalle; revisa el texto extraído después.</p>
+        <div class="upload-actions">
+          <button class="text-button" value="cancel" autofocus>Cancelar</button>
+          <button class="primary-button" value="optimize">Optimizar y subir</button>
+        </div>
+      </form>
+    </dialog>
     <dialog id="modal" aria-labelledby="modal-title">
       <div class="modal-heading">
         <h2 id="modal-title"></h2>

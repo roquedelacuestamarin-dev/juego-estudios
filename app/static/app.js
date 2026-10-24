@@ -165,6 +165,7 @@ function render() {
     invalid ||
     !state.ai_available;
   $("#send-button").disabled = chatting || generating;
+  $("#chat-attach").disabled = uploading;
   $("#generate-button").classList.toggle("busy", generating);
   $("#generation-description").textContent = generating
     ? "Preparando contenido y comprobando sus referencias…"
@@ -186,6 +187,13 @@ function render() {
       : "";
   $("#download-package").hidden = !state.package;
   $("#play-button").hidden = state.package?.engine?.status !== "ready";
+  $("#chat-upload-status").textContent = uploading
+    ? "Preparando y subiendo tus archivos…"
+    : pending
+      ? "Leyendo tus archivos. Puedes seguir escribiendo aquí."
+      : hasFiles
+        ? `${state.files.length} archivo(s) adjunto(s). Puedes revisar su estado en Mi material.`
+        : "Adjunta tus apuntes aquí y escribe qué quieres practicar.";
   $("#upload-status").textContent = uploading
     ? "Subiendo archivos…"
     : pending
@@ -218,6 +226,18 @@ async function upload(files, folder = false) {
   render();
   let added = 0;
   try {
+    const limit = state.limits.file_mb * 1024 ** 2;
+    const large = supported.filter((file) => file.size > limit);
+    if (large.some((file) => !/\.(png|jpe?g|webp)$/i.test(file.name))) {
+      throw new Error(`Los documentos admiten hasta ${state.limits.file_mb} MB cada uno. Divide los documentos grandes antes de adjuntarlos.`);
+    }
+    if (large.some((file) => file.size > 20 * 1024 ** 2)) {
+      throw new Error("Las imágenes que quieras optimizar deben pesar como máximo 20 MB cada una.");
+    }
+    if (large.length && !(await confirmImageOptimization(large))) {
+      notify("Carga cancelada. No se subió ningún archivo de esta selección.");
+      return;
+    }
     // Una petición por archivo mantiene las cargas pequeñas al atravesar el proxy de la web.
     for (const file of supported) {
       const body = new FormData();
@@ -247,7 +267,7 @@ $("#file-input").addEventListener("change", (event) =>
 $("#folder-input").addEventListener("change", (event) =>
   upload(event.target.files, true),
 );
-$("#chat-attach").addEventListener("click", showMaterials);
+$("#chat-attach").addEventListener("click", () => $("#file-input").click());
 $("#drop-zone").addEventListener("keydown", (event) => {
   if (["Enter", " "].includes(event.key)) {
     event.preventDefault();
@@ -274,7 +294,7 @@ if ("webkitdirectory" in document.createElement("input"))
 $("#folder-button").addEventListener("click", () => $("#folder-input").click());
 function showMaterials() {
   $("#materials").scrollIntoView({ behavior: "smooth", block: "start" });
-  $("#optimize-images").focus({ preventScroll: true });
+  $("#drop-zone").focus({ preventScroll: true });
 }
 $("#nav-material").addEventListener("click", showMaterials);
 document.querySelectorAll("[data-prompt]").forEach((button) =>
@@ -508,11 +528,22 @@ api("/api/session", { method: "POST", body: "{}" })
 setInterval(poll, 1500);
 
 
+function confirmImageOptimization(files) {
+  const dialog = $("#image-upload-dialog");
+  $("#image-upload-description").textContent = `Estas imágenes superan los ${state.limits.file_mb} MB por archivo:`;
+  $("#image-upload-list").replaceChildren(...files.map((file) => node("li", "", `${file.name} · ${(file.size / 1024 ** 2).toFixed(1)} MB`)));
+  dialog.returnValue = "cancel";
+  return new Promise((resolve) => {
+    dialog.addEventListener("close", () => resolve(dialog.returnValue === "optimize"), { once: true });
+    dialog.showModal();
+  });
+}
+
 async function prepareImage(file) {
   const limit = state.limits.file_mb * 1024 ** 2;
   if (file.size <= limit) return file;
-  if (!$("#optimize-images").checked || !/\.(png|jpe?g|webp)$/i.test(file.name)) {
-    throw new Error(`Cada archivo admite ${state.limits.file_mb} MB. Para una imagen grande, marca Optimizar imágenes; para PDF, divide el documento.`);
+  if (!/\.(png|jpe?g|webp)$/i.test(file.name)) {
+    throw new Error(`Cada archivo admite ${state.limits.file_mb} MB. Divide los documentos grandes antes de adjuntarlos.`);
   }
   if (file.size > 20 * 1024 ** 2) throw new Error("Para optimizar una imagen, el original debe pesar como máximo 20 MB.");
   let bitmap;

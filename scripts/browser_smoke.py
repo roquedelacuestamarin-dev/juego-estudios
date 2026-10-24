@@ -58,13 +58,13 @@ def main():
                         print(f'PASS accesibilidad automatizada {name}: 0 infracciones detectadas', flush=True)
                     expect(page.locator('#generate-button')).to_be_disabled()
                     expect(page.locator('[data-prompt]')).to_have_count(0)
-                    page.get_by_role('button', name='Ir a mis archivos', exact=True).click()
-                    expect(page.locator('#optimize-images')).to_be_focused()
                     page.locator('#mobile-settings').click()
                     expect(page.locator('#topic-preferences select')).to_have_count(0)
                     page.keyboard.press('Escape')
                     page.screenshot(path=str(OUTPUT / f'{name}.png'), full_page=True)
-                    page.locator('#file-input').set_input_files([
+                    with page.expect_file_chooser() as chooser:
+                        page.get_by_role('button', name='Adjuntar archivos', exact=True).click()
+                    chooser.value.set_files([
                         {'name': 'matematicas.pdf', 'mimeType': 'application/pdf', 'buffer': material},
                         {'name': 'dañado.pdf', 'mimeType': 'application/pdf', 'buffer': b'not a PDF'},
                     ])
@@ -126,10 +126,15 @@ def main():
                         assert len(buffer.getvalue()) > 3 * 1024**2
                         file = {'name': 'infografia.png', 'mimeType': 'image/png', 'buffer': buffer.getvalue()}
                         page.locator('#file-input').set_input_files(file)
-                        expect(page.locator('#toast')).to_contain_text('Optimizar imágenes')
+                        expect(page.locator('#image-upload-dialog')).to_be_visible()
+                        page.get_by_role('button', name='Cancelar', exact=True).click()
+                        expect(page.locator('#image-upload-dialog')).not_to_be_visible()
                         expect(page.locator('#file-count')).to_have_text('0 / 20')
-                        page.locator('#optimize-images').check()
-                        page.locator('#file-input').set_input_files(file)
+                        with page.expect_file_chooser() as chooser:
+                            page.get_by_role('button', name='Adjuntar archivos', exact=True).click()
+                        chooser.value.set_files(file)
+                        expect(page.locator('#image-upload-dialog')).to_be_visible()
+                        page.get_by_role('button', name='Optimizar y subir', exact=True).click()
                         expect(page.get_by_text('Listo para preparar', exact=True)).to_be_visible(timeout=30000)
                         page.get_by_text('Ver texto y referencias').click()
                         expect(page.locator('.extracted-page')).to_contain_text('plantas')
