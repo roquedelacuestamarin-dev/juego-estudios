@@ -168,12 +168,16 @@ function render() {
   $("#generate-button").classList.toggle("busy", generating);
   $("#generation-description").textContent = generating
     ? "Preparando contenido y comprobando sus referencias…"
+    : uploading
+      ? "Estamos subiendo tus archivos. Espera a que termine la carga."
+      : !state.ai_available
+        ? "Falta configurar la clave de IA en el servidor o activar el modo local."
     : pending
       ? "Estamos leyendo tus archivos. Puedes seguir conversando."
       : invalid
         ? "Revisa los archivos señalados antes de preparar el contenido."
         : hasFiles
-          ? "Tu material está listo. Prepararemos el contenido con tus preferencias."
+          ? "Tu material está listo. Pulsa Generar juego; después aparecerá Jugar mi expedición."
           : "Adjunta material para preparar el contenido de tu aventura.";
   $("#generation-status").textContent = state.package
     ? `Contenido preparado · ${state.package.topics.length} tema(s) · ${state.package.sources.length} referencia(s). ${state.package.engine?.status === "ready" ? "Tu expedición está lista." : "Vuelve a generar para preparar los retos."}`
@@ -243,7 +247,7 @@ $("#file-input").addEventListener("change", (event) =>
 $("#folder-input").addEventListener("change", (event) =>
   upload(event.target.files, true),
 );
-$("#chat-attach").addEventListener("click", () => $("#file-input").click());
+$("#chat-attach").addEventListener("click", showMaterials);
 $("#drop-zone").addEventListener("keydown", (event) => {
   if (["Enter", " "].includes(event.key)) {
     event.preventDefault();
@@ -268,10 +272,11 @@ $("#drop-zone").addEventListener("drop", (event) =>
 if ("webkitdirectory" in document.createElement("input"))
   $("#folder-button").hidden = false;
 $("#folder-button").addEventListener("click", () => $("#folder-input").click());
-$("#nav-material").addEventListener("click", () => {
-  $("#materials").scrollIntoView({ behavior: "smooth" });
-  $("#drop-zone").focus({ preventScroll: true });
-});
+function showMaterials() {
+  $("#materials").scrollIntoView({ behavior: "smooth", block: "start" });
+  $("#optimize-images").focus({ preventScroll: true });
+}
+$("#nav-material").addEventListener("click", showMaterials);
 document.querySelectorAll("[data-prompt]").forEach((button) =>
   button.addEventListener("click", () => {
     $("#message-input").value = button.dataset.prompt;

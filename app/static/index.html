@@ -145,7 +145,7 @@
                   <svg aria-hidden="true">
                     <use href="/static/icons.svg#clip" />
                   </svg>
-                  Adjuntar material</button
+                  Ir a mis archivos</button
                 ><span class="input-hint">Enter para enviar</span
                 ><button
                   class="send-button"
@@ -197,6 +197,10 @@
                 <h2 id="material-title">Tu material de estudio</h2>
                 <span id="file-count">0 / 20</span>
               </header>
+              <label class="image-option"><input type="checkbox" id="optimize-images" />
+                Optimizar imágenes grandes (hasta 20 MB) antes de subirlas.
+                Puede reducir el detalle: revisa el texto extraído.
+              </label>
               <label
                 for="file-input"
                 class="drop-zone"
@@ -221,10 +225,6 @@
               <p class="file-limits" id="file-limits">
                 Hasta 20 archivos · 10 MB por archivo
               </p>
-              <label class="image-option"><input type="checkbox" id="optimize-images" />
-                Optimizar imágenes grandes (hasta 20 MB) antes de subirlas.
-                Puede reducir el detalle: revisa el texto extraído.
-              </label>
               <ul
                 id="file-list"
                 class="file-list"

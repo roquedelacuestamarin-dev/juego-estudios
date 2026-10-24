@@ -58,6 +58,8 @@ def main():
                         print(f'PASS accesibilidad automatizada {name}: 0 infracciones detectadas', flush=True)
                     expect(page.locator('#generate-button')).to_be_disabled()
                     expect(page.locator('[data-prompt]')).to_have_count(0)
+                    page.get_by_role('button', name='Ir a mis archivos', exact=True).click()
+                    expect(page.locator('#optimize-images')).to_be_focused()
                     page.locator('#mobile-settings').click()
                     expect(page.locator('#topic-preferences select')).to_have_count(0)
                     page.keyboard.press('Escape')
