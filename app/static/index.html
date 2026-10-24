@@ -11,6 +11,7 @@
     <title>Isla Saber · Tu próxima aventura</title>
     <link rel="icon" href="/static/mark.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/static/style.css" />
+    <link rel="stylesheet" href="/static/game.css" />
     <script src="/static/app.js" defer></script>
   </head>
   <body>
@@ -203,7 +204,7 @@
                 <h2>Un mundo por descubrir</h2>
                 <p>Primero, preparemos tu equipaje.</p>
                 <span class="engine-badge"
-                  ><span aria-hidden="true">◷</span> Expedición de repaso</span
+                  ><span aria-hidden="true">◷</span> Mundos por explorar</span
                 >
               </div>
             </section>
@@ -248,14 +249,14 @@
                 </svg>
               </button>
               <p class="generation-note">
-                Completa retos basados en tus apuntes, descubre las respuestas y avanza por la isla.
+                Explora, recoge objetos y resuelve misiones con tus apuntes. Cada materia abre un mundo distinto.
               </p>
               <div
                 id="generation-status"
                 role="status"
                 class="generation-status"
               ></div>
-              <button id="play-button" class="primary-button" hidden>Jugar mi expedición</button>
+              <button id="play-button" class="primary-button" hidden>Explorar mis mundos</button>
               <a
                 id="download-package"
                 class="download-link"
@@ -324,6 +325,8 @@
           >Curso o nivel <span class="optional">(opcional)</span
           ><select name="education_level">
             <option value="">Sin especificar</option>
+            <option>5.º básico</option>
+            <option>6.º básico</option>
             <option>7.º básico</option>
             <option>8.º básico</option>
             <option>1.º medio</option>

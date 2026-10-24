@@ -1,26 +1,33 @@
-# Contrato del motor · versión 1.1.0
+# Contrato del motor · versión 2.0.0
 
-El esquema de `EducationPackage` se exporta en `GET /api/schema`. El paquete privado se descarga en `GET /api/package`. Sus extractos no deben compartirse públicamente.
+`GET /api/schema` exporta `EducationPackage`; `GET /api/package` descarga el paquete privado. Contiene extractos del estudiante, por lo que no es un enlace compartible.
 
-La primera expedición funciona en el navegador: `engine.status=ready`, `capability_version=1.0`, de 1 a 8 actividades. Cada actividad tiene `kind` (`recall` o `choice`), `prompt`, `answer`, `options`, `explanation` y `source_ids`. Se rechazan campos extra, fuentes inexistentes y preguntas de opción cuya respuesta no esté en 2–4 opciones distintas. Esta validación comprueba estructura y referencias, no demuestra exactitud pedagógica.
+## Mundos y misiones
 
-El modo local crea hasta 6 ejercicios de completar fragmentos exactos de las fuentes; no genera conocimiento nuevo. Los proveedores OpenAI/Gemini reciben materia, preferencias e historial y devuelven actividades estructuradas. El motor nunca ejecuta código de IA; presenta texto mediante `textContent`.
+`engine.status=ready`, `capability_version=2.0`. `worlds` contiene hasta seis mundos por materia detectada. Cada uno tiene `id`, `subject`, `name`, `biome`, `missions` y `source_ids`. Los biomas originales son cumbres de cristal (matemáticas), bosque (ciencias), ruinas (historia), valle otoñal (lenguaje), costa (geografía) y pradera para otros materiales.
 
-Cada acierto al primer intento suma 10 puntos. La respuesta se compara sin distinguir mayúsculas, acentos ni espacios repetidos; no se usa evaluación semántica. Después de responder se muestran explicación y fuente. Al terminar se puede revisar o repetir. El progreso vive en memoria de la pestaña, no persiste al recargar. No hay clasificaciones ni calificaciones académicas.
+El compilador `app/worlds.py` separa fragmentos por palabras clave, incluso dentro de un mismo documento, y conserva los identificadores originales. La clasificación es aproximada. Los escenarios son plantillas con terrenos y posiciones diferentes, no mapas creados libremente por un modelo. Si no hay una explicación legible, la generación indica qué corregir.
 
-La pantalla inicial no predetermina materias. Preferencias muestra temas indicados o presentes en el paquete generado. Los paquetes antiguos no habilitan Jugar: hay que generarlos otra vez. La huella de generación incluye la versión del motor para invalidar la caché anterior.
+Cada mundo tiene tres misiones:
 
-Esta primera actividad de repaso no completa todavía los requisitos de aventura que siguen a continuación; los puntos actuales no sustituyen el futuro sistema de estrellas.
+1. `order`: recoger físicamente tres piezas de una explicación y llevarlas al taller en un orden coherente. Solo el orden original de la fuente se acepta en esta versión.
+2. `balance`: para operaciones enteras correctas explícitas en los apuntes (`+`, `-`, `×`, `*`, resultado entre 1 y 12), transportar cristales de 1–3 unidades y depositar la cantidad exacta. Si no hay una operación compatible, `restore`: recuperar y entregar el concepto que completa una idea de la fuente.
+3. `encounter`: breve pregunta al guardián, al otro lado del puente. Tras resolverla, el jugador debe caminar hasta el faro y encenderlo.
 
-## Requisitos conservados para la etapa posterior
+Cada misión usa `instruction`, `items`, `solution`, `answer` cuando corresponde, `explanation` y `source_ids`. Se validan límites, índices y referencias. Esa validación no prueba exactitud pedagógica. Las operaciones se comprueban aritméticamente antes de producir una misión de energía.
 
-- Aventura original en pixel art; zona central, personajes, mapa y misiones.
-- Historia vinculada a la materia y las preferencias; personajes que usen el apodo.
-- Dificultad fácil, media y difícil; personalización opcional de personaje.
-- Cantidad de misiones configurable dentro de límites aún por definir.
-- Tres estrellas obligatorias para completar cada misión.
-- Reintentos con preguntas distintas o con otro orden; sin pistas durante las misiones.
-- Compartir mediante enlace que no exponga documentos ni conversaciones.
-- Mantener cobertura de contenidos y respuestas correctas; no prometer variantes infinitas.
+`activities` conserva el contenido estructurado de preguntas para los encuentros. En modo local se deriva de fragmentos. Con OpenAI/Gemini el proveedor prepara ese contenido; el compilador lo transforma en misiones admitidas. El modelo no ejecuta ni genera el código del motor. No hay llamadas a IA durante el movimiento o la resolución del mapa.
 
-**Pendiente de definición por el propietario:** cálculo de estrellas, actividades concretas, límites de misiones y condiciones detalladas de victoria. No se han inventado estos requisitos. Tampoco hay precios definitivos ni cobros.
+## Motor y progreso
+
+`app/static/game.mjs` dibuja el mundo y los personajes originales en Canvas 2D, con movimiento por casillas, colisiones, búsqueda de caminos, interacción por proximidad, mochila, puente bloqueado y faro. Teclado: flechas/WASD y E. Móvil: cruceta y botón de interacción; también se puede tocar un destino. La vista móvil acerca la cámara para que el personaje sea legible.
+
+Los errores permiten reintentar y no consumen intentos de API. Las respuestas breves se comparan sin distinguir mayúsculas, acentos ni espacios repetidos; no se evalúan sinónimos. Cada misión completada aporta una estrella, hasta tres por mundo. No es la futura regla de tres estrellas por misión ni una calificación escolar.
+
+El progreso se guarda en `sessionStorage`, asociado a la huella del paquete y con caducidad. Guarda posiciones y misiones, no documentos ni conversaciones. Permite recargar o cerrar el diálogo en la misma pestaña. No se sincroniza entre dispositivos y puede perderse al cerrar la pestaña o caducar la sesión del servidor. Borrar la sesión o invalidar su paquete elimina el progreso local. Si el navegador bloquea el almacenamiento, el juego continúa en memoria.
+
+Los paquetes anteriores deben regenerarse: se actualizó la huella del motor y la web no presenta el cuestionario viejo como un mundo. Actualizar tanto Render como Vercel.
+
+## Alcance de esta versión
+
+Primera aventura para iterar con estudiantes de 10–16 años, no reproducción de Doodle Champion Island. Las mecánicas de recogida, reconstrucción y energía ya funcionan; no hay deportes, audio, combate, multijugador, enlaces compartidos, avatar personalizable, misiones infinitas ni evaluación curricular. La narrativa usa un arco sencillo de restaurar un faro y el apodo del estudiante. La calidad de los encuentros con IA real requiere una clave y validación posterior.

@@ -1,13 +1,14 @@
 # Isla Saber
 
-Primera etapa de una plataforma para preparar aventuras educativas a partir de material de estudio. Interfaz original en español con estética de exploración y pixel art. **Incluye una primera expedición de retos de repaso. El mundo explorable y las misiones narrativas siguen pendientes.**
+Primera etapa de una plataforma para preparar aventuras educativas a partir de material de estudio. Interfaz original en español con estética de exploración y pixel art. **Incluye mundos explorables en pixel art, personaje controlable, objetos, misiones y encuentros breves. Primera versión pensada para 10–16 años.**
 
 ## Qué funciona
 
 - Conversación, carga múltiple, arrastrar archivos, selección opcional de carpetas, estados, eliminación y vista del texto extraído.
 - PDF digital y escaneado; JPG, PNG y WebP con OCR real en español (Tesseract). DOCX y PPTX: texto y tablas.
 - Asistente local por reglas: reconoce temas básicos, apodo, curso y dificultad por tema. Por ejemplo: `Llámame Luna. Estoy en 7º básico. Sumas fáciles y restas difíciles.` Conserva preferencias durante la sesión y permite corregirlas mediante un formulario.
-- Juego en navegador con progreso, puntos, respuestas y explicaciones con fuentes. Modo local: completar fragmentos; IA: preguntas de opción o respuesta breve. No ejecuta código generado.
+- Videojuego en navegador: mundos por materia, movimiento por teclado/táctil, personajes, mochila, reconstrucción de ideas, transporte de energía, puente desbloqueable y faro. Dos misiones de acción y un encuentro breve por mundo; fuentes consultables.
+- Progreso conservado al recargar la misma pestaña. Terreno y arte originales generados por el motor; no se ejecuta código de IA. El modo local funciona sin claves.
 - Optimización opcional de imágenes originales de hasta 20 MB para ajustarlas al límite del servidor. Requiere revisar la legibilidad del texto extraído. No aumenta el límite de PDF.
 - Preparación de un paquete JSON validado, versionado y relacionado con fuentes/páginas. Sin confirmación previa de historia o misiones.
 - Adaptadores de OpenAI y Gemini implementados para conversación y preparación semántica, **pendiente de verificar con credenciales reales**. No hay búsquedas web.

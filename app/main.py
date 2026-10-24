@@ -149,7 +149,7 @@ def create_app(cfg: Settings | None = None):
     async def health():
         return {"status": "ok", "mode": cfg.ai_mode, "ai_configured": bool(cfg.ai_key),
                 "ocr_available": bool(shutil.which("tesseract") and (cfg.tessdata_dir / "spa.traineddata").is_file()),
-                "engine": "ready"}
+                "engine": "ready", "engine_version": "2.0"}
 
     @app.post("/api/session")
     async def get_session(request: Request):
@@ -366,7 +366,7 @@ def create_app(cfg: Settings | None = None):
                 raise HTTPException(422, "Hay material que necesita revisión. Sustitúyelo o elimínalo para no preparar contenido incompleto.")
             fingerprint = hashlib.sha256(json.dumps({"files": [f["digest"] for f in state["files"]],
                 "prefs": state["preferences"], "messages": state["messages"], "mode": cfg.ai_mode,
-                "model": cfg.ai_model, "engine_version": "1.0"}, sort_keys=True).encode()).hexdigest()
+                "model": cfg.ai_model, "engine_version": "2.0"}, sort_keys=True).encode()).hexdigest()
             if state["package"] and state["fingerprint"] == fingerprint:
                 return public_state(state)
             if state["generations"] >= cfg.max_generations:

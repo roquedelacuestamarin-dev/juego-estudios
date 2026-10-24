@@ -44,14 +44,35 @@ class Activity(StrictModel):
     source_ids: list[str] = Field(min_length=1, max_length=5)
 
 
+class Mission(StrictModel):
+    kind: Literal["order", "restore", "balance", "encounter"]
+    title: str = Field(min_length=1, max_length=100)
+    instruction: str = Field(min_length=1, max_length=800)
+    items: list[str] = Field(default_factory=list, max_length=4)
+    solution: list[int] = Field(default_factory=list, max_length=4)
+    answer: str = Field(default="", max_length=300)
+    explanation: str = Field(min_length=1, max_length=1000)
+    source_ids: list[str] = Field(min_length=1, max_length=5)
+
+
+class World(StrictModel):
+    id: str
+    subject: str
+    name: str
+    biome: Literal["crystal", "forest", "ruins", "autumn", "coast", "meadow"]
+    missions: list[Mission] = Field(min_length=2, max_length=4)
+    source_ids: list[str] = Field(min_length=1, max_length=100)
+
+
 class EngineConfiguration(StrictModel):
     status: Literal["ready"] = "ready"
-    capability_version: Literal["1.0"] = "1.0"
+    capability_version: Literal["2.0"] = "2.0"
+    worlds: list[World] = Field(min_length=1, max_length=6)
     activities: list[Activity] = Field(min_length=1, max_length=8)
 
 
 class EducationPackage(StrictModel):
-    schema_version: Literal["1.1.0"] = "1.1.0"
+    schema_version: Literal["2.0.0"] = "2.0.0"
     title: str = Field(min_length=1, max_length=120)
     preferences: Preferences
     level_basis: Literal["user", "unknown"]
@@ -94,4 +115,17 @@ def validate_references(package: EducationPackage) -> EducationPackage:
                 raise ValueError("Opciones de respuesta inválidas")
         elif activity.options:
             raise ValueError("Un reto de recordar no admite opciones")
+    for world in package.engine.worlds:
+        if not set(world.source_ids).issubset(ids):
+            raise ValueError("Referencia a una fuente inexistente")
+        for mission in world.missions:
+            if not set(mission.source_ids).issubset(ids):
+                raise ValueError("Referencia a una fuente inexistente")
+            if mission.kind in {"order", "restore"}:
+                if not mission.solution or any(i < 0 or i >= len(mission.items) for i in mission.solution):
+                    raise ValueError("Piezas de misión inválidas")
+            if mission.kind == "balance" and (len(mission.solution) != 1 or not 1 <= mission.solution[0] <= 12):
+                raise ValueError("Cantidad de misión inválida")
+            if mission.kind == "encounter" and not mission.answer:
+                raise ValueError("Encuentro sin respuesta")
     return package

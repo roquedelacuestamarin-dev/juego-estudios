@@ -51,7 +51,9 @@ async function refresh() {
 }
 function render() {
   if (!state) return;
-  if (!state.package) expedition = null;
+  if (!state.package) {
+    try { sessionStorage.removeItem("isla-world-progress"); } catch {}
+  }
   $("#mode-label").replaceChildren(
     node("span", "status-dot"),
     document.createTextNode(
@@ -179,15 +181,15 @@ function render() {
       : invalid
         ? "Revisa los archivos señalados antes de preparar el contenido."
         : hasFiles
-          ? "Tu material está listo. Pulsa Generar juego; después aparecerá Jugar mi expedición."
+          ? "Tu material está listo. Pulsa Generar juego; después aparecerá Explorar mis mundos."
           : "Adjunta material para preparar el contenido de tu aventura.";
   $("#generation-status").textContent = state.package
-    ? `Contenido preparado · ${state.package.topics.length} tema(s) · ${state.package.sources.length} referencia(s). ${state.package.engine?.status === "ready" ? "Tu expedición está lista." : "Vuelve a generar para preparar los retos."}`
+    ? `Contenido preparado · ${state.package.topics.length} tema(s) · ${state.package.sources.length} referencia(s). ${state.package.engine?.worlds?.length ? `${state.package.engine.worlds.length} mundo(s) listos para explorar.` : "Vuelve a generar para crear los mundos de exploración."}`
     : state.generation_status === "error"
       ? "La preparación no terminó. Revisa el mensaje de error y vuelve a intentarlo."
       : "";
   $("#download-package").hidden = !state.package;
-  $("#play-button").hidden = state.package?.engine?.status !== "ready";
+  $("#play-button").hidden = !state.package?.engine?.worlds?.length;
   $("#chat-upload-status").textContent = uploading
     ? "Preparando y subiendo tus archivos…"
     : pending
@@ -335,7 +337,7 @@ $("#generate-button").addEventListener("click", async () => {
   try {
     state = await api("/api/generate", { method: "POST", body: "{}" });
     notify(
-      "Expedición preparada. Pulsa Jugar mi expedición para comenzar.",
+      "Mundos preparados. Pulsa Explorar mis mundos para comenzar.",
     );
   } catch (error) {
     notify(error.message, true);
@@ -452,8 +454,8 @@ $("#help-button").addEventListener("click", () => {
   [
     "Adjunta material de estudio. Revisa el texto extraído si contiene fórmulas o escritura a mano.",
     "Cuéntale al asistente qué quieres practicar. Puedes ajustar apodo, curso y dificultades en Preferencias.",
-    "Pulsa Generar juego y después Jugar mi expedición. Resuelve los retos y revisa las explicaciones con sus fuentes.",
-    "En modo local completarás palabras de tus apuntes; con IA se pueden crear preguntas y opciones. Los puntos son de práctica, no una calificación escolar.",
+    "Pulsa Generar juego y después Explorar mis mundos. Resuelve los retos y revisa las explicaciones con sus fuentes.",
+    "Explora un mundo por materia, recoge y coloca piezas de tus apuntes, repara el puente y enciende el faro. Algunos encuentros incluyen preguntas breves. El progreso no es una calificación escolar.",
   ].forEach((text) => list.append(node("li", "", text)));
   content.append(
     list,
@@ -567,83 +569,13 @@ async function prepareImage(file) {
   }
 }
 
-let expedition = null;
-const normalizedAnswer = (value) => value.trim().toLocaleLowerCase("es").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ");
-$("#play-button").addEventListener("click", () => {
-  if (state.package?.engine?.status !== "ready") return;
-  const signature = JSON.stringify(state.package);
-  if (expedition?.signature !== signature) expedition = {signature, index: 0, answers: [], score: 0};
-  showChallenge();
-});
-function showChallenge() {
-  const pack = state.package;
-  const activities = pack.engine.activities;
-  const content = node("div", "expedition");
-  content.append(node("p", "eyebrow", `EXPEDICIÓN · ${expedition.score} PUNTOS`));
-  const trail = node("div", "game-trail");
-  trail.setAttribute("aria-label", `Progreso: ${expedition.answers.length} de ${activities.length} retos`);
-  activities.forEach((_, i) => trail.append(node("span", i < expedition.answers.length ? "visited" : "", i < expedition.answers.length ? "★" : "○")));
-  content.append(trail);
-  if (expedition.index >= activities.length) {
-    content.append(node("h3", "", "¡Llegaste a la biblioteca de la isla!"), node("p", "", `Completaste ${activities.length} retos. Acertaste ${expedition.score / 10} en el primer intento. Puedes repasar las explicaciones y volver a jugar.`));
-    activities.forEach((activity, i) => {
-      const review = node("details", "game-review");
-      review.append(node("summary", "", `Reto ${i + 1} · ${expedition.answers[i].correct ? "Acertado" : "Para repasar"}`), node("p", "", activity.prompt), node("p", "", `Respuesta: ${activity.answer}`), node("p", "", activity.explanation));
-      content.append(review);
-    });
-    const again = node("button", "primary-button", "Volver a jugar");
-    again.onclick = () => { expedition.index = 0; expedition.answers = []; expedition.score = 0; showChallenge(); };
-    content.append(again);
-  } else {
-    const activity = activities[expedition.index];
-    content.append(node("h3", "", `Parada ${expedition.index + 1} de ${activities.length}`), node("p", "game-question", activity.prompt));
-    const form = node("form", "game-answer");
-    const feedback = node("div", "game-feedback");
-    feedback.setAttribute("role", "status");
-    const submitAnswer = (value) => {
-      if (expedition.answers[expedition.index]) return;
-      const correct = normalizedAnswer(value) === normalizedAnswer(activity.answer);
-      expedition.answers.push({correct});
-      if (correct) expedition.score += 10;
-      form.querySelectorAll("input, button").forEach((el) => el.disabled = true);
-      feedback.append(node("h4", "", correct ? "¡Correcto! +10 puntos" : "Sigamos aprendiendo"), node("p", "", `Respuesta: ${activity.answer}`), node("p", "", activity.explanation));
-      activity.source_ids.forEach((id) => {
-        const source = pack.sources.find((item) => item.id === id);
-        if (!source) return;
-        const reference = node("details", "game-review");
-        reference.append(node("summary", "", `${source.filename}${source.page ? ` · página ${source.page}` : ""}`), node("p", "", source.excerpt));
-        feedback.append(reference);
-      });
-      const next = node("button", "primary-button", expedition.index + 1 === activities.length ? "Ver resultado" : "Siguiente parada");
-      next.onclick = () => { expedition.index += 1; showChallenge(); };
-      feedback.append(next);
-      next.focus();
-    };
-    if (activity.kind === "choice") {
-      activity.options.forEach((option) => {
-        const button = node("button", "game-option", option);
-        button.type = "button";
-        button.onclick = () => submitAnswer(option);
-        form.append(button);
-      });
-    } else {
-      const label = node("label", "", "Tu respuesta");
-      const input = node("input");
-      input.required = true; input.maxLength = 300; input.autocomplete = "off";
-      label.append(input);
-      const submit = node("button", "primary-button", "Comprobar");
-      submit.type = "submit";
-      form.append(label, submit);
-      form.onsubmit = (event) => { event.preventDefault(); if (input.value.trim()) submitAnswer(input.value); };
-    }
-    content.append(form, feedback);
-    // Reopening a closed window resumes at the next unanswered challenge.
-    if (expedition.answers[expedition.index]) { expedition.index += 1; showChallenge(); return; }
+let adventure = null;
+$("#play-button").addEventListener("click", async () => {
+  if (!state.package?.engine?.worlds?.length || adventure) return;
+  try {
+    const { launchAdventure } = await import("/static/game.mjs");
+    if (!adventure) adventure = launchAdventure(state.package, () => { adventure = null; $("#play-button").focus(); });
+  } catch (error) {
+    notify("No se pudo abrir el mundo. Recarga la página y vuelve a intentarlo.", true);
   }
-  if ($("#modal").open) {
-    $("#modal-title").textContent = pack.title;
-    $("#modal-content").replaceChildren(content);
-  } else openModal(pack.title, content);
-  const focusTarget = content.querySelector("input, button");
-  focusTarget?.focus();
-}
+});

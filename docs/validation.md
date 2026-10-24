@@ -6,7 +6,7 @@ Entorno: Linux, Python 3.12.14, Tesseract 5 con modelo español `tessdata_fast` 
 
 `bash scripts/setup.sh`: instalación repetible y verificación del checksum del modelo. La segunda ejecución reutilizó las dependencias y el modelo.
 
-`.venv/bin/pytest -q`: **31 casos aprobados**. Cobertura:
+`.venv/bin/pytest -q`: **35 casos aprobados**. Cobertura:
 
 - Recorrido de material → conversación → preferencias por tema → paquete válido con referencias → reutilización sin nueva generación → eliminación.
 - Formatos no permitidos, extensiones falsas, archivo vacío, más de 20 archivos, tamaño, cuota acumulada, duplicados y rechazo atómico de lotes.
@@ -22,7 +22,7 @@ Entorno: Linux, Python 3.12.14, Tesseract 5 con modelo español `tessdata_fast` 
 
 El runner muestra un aviso de deprecación de Starlette sobre su adaptador de pruebas httpx; no es un fallo de ejecución. La suite no usa pruebas omitidas ni resultados simulados como evidencia de llamadas reales al proveedor.
 
-`.venv/bin/python scripts/browser_smoke.py`: **3 recorridos aprobados** en Chromium a 1440×1050, 820×1180 y 390×844. Carga real mediante la interfaz, chat, persistencia al recargar, preferencias por tema, preparación y descarga JSON, vista de fuentes, uso de Escape en diálogo, cambio de apodo, prevención de HTML inyectado, borrado de archivo y sesión. Sin errores JavaScript ni desbordamiento horizontal inicial. Capturas en `test-results/`. Además, cada tamaño completa y reinicia la expedición, comprueba respuestas correctas/incorrectas y verifica que no haya materias prefijadas. El botón Adjuntar archivos del chat abre el selector nativo en los tres tamaños. Para una imagen PNG sintética de más de 3 MB aparece el diálogo de optimización: cancelar no carga ningún archivo, y Optimizar y subir permite cargarla y comprobar su texto mediante OCR real.
+`.venv/bin/python scripts/browser_smoke.py`: **3 recorridos aprobados** en Chromium a 1440×1050, 820×1180 y 390×844. Carga real mediante la interfaz, chat, persistencia al recargar, preferencias por tema, preparación y descarga JSON, vista de fuentes, uso de Escape en diálogo, cambio de apodo, prevención de HTML inyectado, borrado de archivo y sesión. Sin errores JavaScript ni desbordamiento horizontal inicial. Capturas en `test-results/`. Además, cada tamaño abre el atlas y un mundo, mueve al personaje con controles de pantalla y vuelve a los apuntes; comprueba que no haya materias prefijadas. El botón Adjuntar archivos del chat abre el selector nativo en los tres tamaños. Para una imagen PNG sintética de más de 3 MB aparece el diálogo de optimización: cancelar no carga ningún archivo, y Optimizar y subir permite cargarla y comprobar su texto mediante OCR real.
 
 ## Límites de la evidencia
 
@@ -45,7 +45,7 @@ El auditor se inyecta mediante DevTools solo en las pruebas; la CSP de la aplica
 - No existe motor jugable, cálculo de estrellas, misiones, cobros ni enlaces públicos.
 - No se probó Vercel ni otro alojamiento externo. El procedimiento propuesto está en `deployment.md`.
 
-La web y la preparación local son comprobables en este entorno. La expedición de repaso está probada localmente. La conversación con IA real y el mundo explorable siguen pendientes.
+La web y la preparación local son comprobables en este entorno. Los mundos explorables están probados localmente. La conversación con IA real sigue pendiente de credencial.
 
 ## Preparación del despliegue
 
@@ -56,3 +56,13 @@ La web y la preparación local son comprobables en este entorno. La expedición 
 
 - Imagen `isla-saber:preview` construida correctamente a partir del Dockerfile y la imagen base fijada por digest. En este entorno se utilizó el proxy existente y su CA mediante un secreto efímero de BuildKit; no se desactivó la verificación TLS ni se guardó el certificado del entorno en la imagen.
 - `python3 scripts/container_smoke.py`: aprobado en un contenedor limitado a 512 MB y una CPU. Verificó web, extracción de PDF, OCR español de un JPEG sintético, preferencias por tema, paquete con fuentes y borrado de sesión. El contenedor de prueba se eliminó al finalizar.
+
+
+## Motor de mundos 2.0
+
+- `node --test tests/world-map.test.mjs tests/vercel.test.mjs`: 10 pruebas. Los seis biomas tienen mapas diferentes y reproducibles; todas las piezas y el taller son accesibles, el faro está bloqueado antes de abrir el puente y es alcanzable después. El build de Vercel conserva las rutas y solo publica archivos públicos.
+- Los casos Python nuevos separan materias, conservan fuentes, rechazan operaciones aritméticas incorrectas o fuera de alcance y generan dos mundos desde un documento mixto.
+- `.venv/bin/python scripts/world_browser_smoke.py`: recorrido completo real en Chromium de matemáticas y ciencias mediante clics en el mapa, sin modificar el estado interno del juego. Incluye orden incorrecto, recogida/entrega, energía exacta, concepto, respuesta incorrecta/correcta, puente, faro, persistencia al recargar y borrado. Se generan tres mundos de prueba, incluyendo historia. Sin llamadas a IA ni datos del usuario.
+- Capturas: `test-results/world-atlas.png`, `world-matematicas.png`, `world-ciencias.png`, y sus finales; vistas adaptables en `desktop-game.png`, `tablet-game.png`, `mobile-game.png`.
+
+La auditoría axe descrita arriba corresponde a la interfaz previa de preparación, no certifica la navegación espacial del nuevo juego. La dificultad pedagógica, variedad de misiones y clasificación de documentos reales requieren pruebas con estudiantes y ajustes posteriores. El progreso es local a la pestaña, no una cuenta permanente.
